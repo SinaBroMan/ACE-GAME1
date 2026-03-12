@@ -582,17 +582,18 @@
 
         function createParticles(x, y, color, amount) { for (let i = 0; i < amount; i++) particles.push(new Particle(x, y, color)); }
 
-        // 화면에 보이는 건물들 중 적절한 위치들을 반환하는 함수
-        function getVisibleBuildingPositions() {
-            const visibleBuildings = buildings.filter(building => 
-                building.x + building.width > 0 && building.x < canvas.width
-            );
+        // 빨간색 직사각형 영역 내부 중앙에서 텍스트 위치를 반환하는 함수
+        function getTopAreaPositions() {
+            // 빨간 직사각형: 상단 ~25% 아래에서 시작, 하단 ~66%까지 (UI 바로 아래 ~ 화면 중하단)
+            const rectTop = canvas.height * 0.25;   // 직사각형 상단
+            const rectBottom = canvas.height * 0.66; // 직사각형 하단
+            const rectCenterY = (rectTop + rectBottom) / 2; // 직사각형 세로 중앙
             
-            return visibleBuildings.map(building => ({
-                x: building.x + building.width / 2, // 건물 중앙
-                y: player.groundY + player.height - building.height + 20 - 50, // 건물 상단에서 조금 위
-                width: building.width
-            }));
+            return [
+                { x: canvas.width / 2, y: rectCenterY }, // 직사각형 내부 가운데
+                { x: canvas.width / 2, y: rectCenterY - 30 }, // 약간 위
+                { x: canvas.width / 2, y: rectCenterY + 30 }, // 약간 아래
+            ];
         }
 
         // 기존 메시지들과 겹치지 않는 위치를 찾는 함수
@@ -604,7 +605,7 @@
                 let tooClose = false;
                 for (let existingMsg of buildingMessages) {
                     const distance = Math.sqrt(Math.pow(pos.x - existingMsg.x, 2) + Math.pow(pos.y - existingMsg.y, 2));
-                    if (distance < 150) { // 최소 거리 150px
+                    if (distance < 100) { // 최소 거리 100px
                         tooClose = true;
                         break;
                     }
@@ -614,46 +615,31 @@
                 }
             }
             
-            // 모든 위치가 겹치면 랜덤하게 하나 선택 (약간의 Y 오프셋 추가)
-            const randomPos = positions[Math.floor(Math.random() * positions.length)];
+            // 모든 위치가 겹치면 첫 번째 위치 사용 (약간의 오프셋 추가)
+            const randomPos = positions[0];
             return {
-                x: randomPos.x,
-                y: randomPos.y - (Math.random() * 60 + 20), // 20-80px 위로 오프셋
-                width: randomPos.width
+                x: randomPos.x + (Math.random() * 100 - 50), // -50 ~ +50px 오프셋
+                y: randomPos.y + (Math.random() * 40 - 20), // -20 ~ +20px 오프셋
             };
         }
 
-        // 업무 자동화 메시지를 건물 위에 표시하는 함수
+        // 업무 자동화 메시지를 화면 상단에 표시하는 함수
         function showAutomationMessage() {
-            const availablePositions = getVisibleBuildingPositions();
-            if (availablePositions.length === 0) return;
+            const availablePositions = getTopAreaPositions();
             
-            // 1-2개의 랜덤 메시지 선택
-            const messageCount = Math.random() > 0.6 ? 2 : 1;
-            const selectedMessages = [];
-            const usedIndices = new Set();
+            // 1개의 랜덤 메시지 선택
+            const randomIndex = Math.floor(Math.random() * automationMessages.length);
+            const selectedMessage = automationMessages[randomIndex];
             
-            for (let i = 0; i < messageCount && selectedMessages.length < automationMessages.length; i++) {
-                let randomIndex;
-                do {
-                    randomIndex = Math.floor(Math.random() * automationMessages.length);
-                } while (usedIndices.has(randomIndex));
-                
-                usedIndices.add(randomIndex);
-                selectedMessages.push(automationMessages[randomIndex]);
+            // 적절한 위치에 메시지 배치
+            const position = findAvailablePosition(availablePositions);
+            if (position) {
+                buildingMessages.push(new BuildingMessage(
+                    position.x,
+                    position.y,
+                    selectedMessage
+                ));
             }
-            
-            // 각 메시지를 적절한 위치에 배치
-            selectedMessages.forEach((message, index) => {
-                const position = findAvailablePosition(availablePositions);
-                if (position) {
-                    buildingMessages.push(new BuildingMessage(
-                        position.x,
-                        position.y - (index * 60), // 여러 메시지가 있을 때 Y축 간격
-                        message
-                    ));
-                }
-            });
         }
 
         function checkCollision(rect1, rect2, padding = 12) {
@@ -701,9 +687,6 @@
                 if (checkCollision(player, item, 0)) {
                     player.powerUp = item.type; player.powerUpTimer = 250; gameSpeed = 22;
                     
-                    // 업무 자동화 메시지 표시
-                    showAutomationMessage();
-                    
                     createParticles(item.x, item.y, item.color, 40); screenShake = 15; item.markedForDeletion = true;
                     buffText.innerText = `🚀 ${item.name} 장착! 무적 돌진! 🚀`; buffText.style.opacity = '1';
                 }
@@ -714,7 +697,12 @@
                 if (checkCollision(player, obs)) {
                     if (player.powerUp || player.invincibleTimer > 0) {
                         createParticles(obs.x + obs.width/2, obs.y + obs.height/2, '#cbd5e1', 25); screenShake = 10; obs.markedForDeletion = true;
-                        if (player.powerUp) { score += 30; floatingTexts.push(new FloatingText(obs.x, obs.y, '+30', '#fbbf24')); }
+                        if (player.powerUp) { 
+                            score += 30; 
+                            floatingTexts.push(new FloatingText(obs.x, obs.y, '+30', '#fbbf24')); 
+                            // 무적 상태에서 장애물을 부쉈을 때 업무 자동화 메시지 표시
+                            showAutomationMessage();
+                        }
                     } else { gameOver(); }
                 }
                 if (obs.markedForDeletion) obstacles.splice(index, 1);
