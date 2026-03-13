@@ -1411,8 +1411,10 @@
 
             const cx = player.x + player.width / 2;
             const cy = player.y + player.height;
+            const groundY = canvas.height - player.height - 50;
+            const onGround = player.y >= groundY;
 
-            if (player.y >= canvas.height - player.height - 50) {
+            if (onGround) {
                 player.vy = player.jumpPower;
                 player.jumps = 1;
                 jumpEffects.push({ x: cx, y: cy, radius: 10, alpha: 0.8, color: '#00f2fe' });
@@ -1604,11 +1606,6 @@
 
                     // 2) 캐릭터 이미지 위에 그리기 (불꽃 위에 캐릭터)
                     ctx.drawImage(playerTransformImg, drawX, drawY, imgW, imgH);
-
-                    // #region agent log
-                    const _ty = player.y + 30 + hoverOffset;
-                    fetch('http://127.0.0.1:7243/ingest/2d50b523-ba2c-4a57-9611-0df5bf337ad9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:flame-v2',message:'Flame BEFORE image (reverted)',data:{fBaseX_abs:Math.round(cx+fBaseX),fTipX_abs:Math.round(cx+fBaseX-fLen),imgLeft_abs:Math.round(cx+drawX),imgRight_abs:Math.round(cx+drawX+imgW)},timestamp:Date.now(),hypothesisId:'H-order'})}).catch(()=>{});
-                    // #endregion
                 } else {
                     ctx.rotate(Math.PI / 2.2);
                     ctx.fillStyle = '#ff0844';
