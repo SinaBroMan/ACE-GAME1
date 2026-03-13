@@ -436,6 +436,7 @@
             font-size: clamp(2.2rem, 4.8vw, 4rem);
             line-height: 1.05;
             letter-spacing: -0.04em;
+            margin-top: 28px;
             margin-bottom: 14px;
             text-shadow: 0 0 24px rgba(125, 231, 255, 0.18);
         }
@@ -638,6 +639,17 @@
 
         .booth-notice strong {
             color: var(--primary);
+        }
+
+        .email-copy {
+            color: var(--warning);
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            transition: opacity 0.2s ease;
+        }
+        .email-copy:hover {
+            opacity: 0.85;
         }
 
         .booth-container {
@@ -1021,7 +1033,7 @@
             </div>
 
             <div class="booth-notice">
-                AI 체험 결과물을 <strong>AI디자인랩 (ai_design_lab@hdec.co.kr)</strong>으로 보내주시면,<br>
+                AI 체험 결과물을 <strong>AI디자인랩 (<span class="email-copy" onclick="copyEmail()" title="클릭하여 복사">ai_design_lab@hdec.co.kr</span>)</strong>으로 보내주시면,<br>
                 우수작을 선정하여 스타벅스 상품권을 보내 드립니다~!
             </div>
 
@@ -1703,10 +1715,40 @@
             document.getElementById('booth-screen').classList.remove('hidden');
         }
 
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.innerText = message;
+            toast.classList.add('show');
+            clearTimeout(window.__toastTimer);
+            window.__toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+        }
+
+        async function copyEmail() {
+            const email = 'ai_design_lab@hdec.co.kr';
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(email);
+                } else {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = email;
+                    textArea.style.position = 'fixed';
+                    textArea.style.left = '-999999px';
+                    textArea.style.top = '-999999px';
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    document.execCommand('copy');
+                    textArea.remove();
+                }
+                showToast('이메일이 복사되었습니다! (Ctrl+V)');
+            } catch (err) {
+                console.error('이메일 복사에 실패했습니다.', err);
+                alert('복사에 실패했습니다. 수동으로 복사해주세요.');
+            }
+        }
+
         async function copyPrompt(id) {
             const text = document.getElementById(id).innerText;
-            const toast = document.getElementById('toast');
-
             try {
                 if (navigator.clipboard && window.isSecureContext) {
                     await navigator.clipboard.writeText(text);
@@ -1722,10 +1764,7 @@
                     document.execCommand('copy');
                     textArea.remove();
                 }
-
-                toast.classList.add('show');
-                clearTimeout(window.__toastTimer);
-                window.__toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+                showToast('프롬프트가 복사되었습니다! (Ctrl+V)');
             } catch (err) {
                 console.error('프롬프트 복사에 실패했습니다.', err);
                 alert('복사에 실패했습니다. 수동으로 복사해주세요.');
