@@ -818,6 +818,7 @@
         .prompt-box {
             flex: 1;
             min-height: 128px;
+            max-height: 320px;
             padding: 18px 18px 20px;
             border-radius: 22px;
             background: rgba(3, 8, 20, 0.58);
@@ -828,6 +829,71 @@
             line-height: 1.7;
             word-break: keep-all;
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .prompt-box::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .prompt-box::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.04);
+            border-radius: 999px;
+        }
+
+        .prompt-box::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.15);
+            border-radius: 999px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+
+        .prompt-box::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.22);
+        }
+
+        /* Gemini 카드 전체 영역 스크롤 (빨간색 직사각형 영역) */
+        .booth-card--gemini {
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: min(75vh, 580px);
+        }
+
+        .booth-card--gemini .card-scroll-area {
+            flex: 1;
+            min-height: 0;
+            height: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            padding-right: 8px;
+            overscroll-behavior-y: contain;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .booth-card--gemini .card-scroll-area::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        .booth-card--gemini .card-scroll-area::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 999px;
+            margin: 4px 0;
+        }
+
+        .booth-card--gemini .card-scroll-area::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.35);
+            border-radius: 999px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+
+        .booth-card--gemini .card-scroll-area::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.5);
         }
 
         .btn-group {
@@ -1077,30 +1143,72 @@
             </div>
 
             <div class="booth-container">
-                <div class="booth-card">
-                    <div class="card-top">
-                        <div>
-                            <h3 class="card-title">✨ Gemini (Canvas)</h3>
+                <div class="booth-card booth-card--gemini">
+                    <div class="card-scroll-area">
+                        <div class="card-top">
+                            <div>
+                                <h3 class="card-title">✨ Gemini (Canvas)</h3>
+                            </div>
+                            <span class="tool-tag">Dash Board</span>
                         </div>
-                        <span class="tool-tag">Google Login</span>
-                    </div>
-                    <div class="card-sub" style="position: relative;">
-                        <p>
-                            복잡한 기획안과 현황판을 순식간에. <span class="canvas-feature-link" onclick="showCanvasGuide()" title="클릭하거나 마우스를 올려보세요">Canvas 기능</span>을 활용해 인터랙션 대시보드를 만들어보세요.
-                            미리보기 기반으로 바로 구조를 확인할 수 있습니다.
-                        </p>
-                        <div class="canvas-guide-popover">
-                            <img src="https://raw.githubusercontent.com/SinaBroMan/canvas/refs/heads/main/notice%20image.png" alt="Gemini Canvas 사용 방법">
-                            <div class="guide-caption">1. "도구" 클릭 → 2. "Canvas" 선택</div>
+                        <div class="card-sub" style="position: relative;">
+                            <p>
+                                복잡한 기획안과 현황판을 순식간에. <span class="canvas-feature-link" onclick="showCanvasGuide()" title="클릭하거나 마우스를 올려보세요">Canvas 기능</span>을 활용해 인터랙션 대시보드를 만들어보세요.
+                                미리보기 기반으로 바로 구조를 확인할 수 있습니다.
+                            </p>
+                            <div class="canvas-guide-popover">
+                                <img src="https://raw.githubusercontent.com/SinaBroMan/canvas/refs/heads/main/notice%20image.png" alt="Gemini Canvas 사용 방법">
+                                <div class="guide-caption">1. "도구" 클릭 → 2. "Canvas" 선택</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="prompt-wrap">
-                        <div class="prompt-label">TRY THIS PROMPT</div>
-                        <div class="prompt-box" id="prompt1">건설사 직원이 매일 확인해야 할 지표를 볼수 있는 인터랙션 대시보드를 HTML파일로 생성해줘.</div>
-                    </div>
-                    <div class="btn-group">
-                        <button class="btn btn-outline btn-block" onclick="copyPrompt('prompt1')">프롬프트 복사</button>
-                        <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-block">Gemini 바로가기</a>
+                        <div class="prompt-wrap">
+                            <div style="text-align: right; color: var(--muted); font-size: 0.8rem; margin-bottom: 8px;">( ※ 구글 로그인 필요)</div>
+                            <div class="prompt-box" id="prompt1">
+                                <div class="prompt-label" style="margin-bottom: 12px;">TRY THIS PROMPT</div>
+                                당신은 B2B SaaS 솔루션 및 엔터프라이즈 대시보드를 전문으로 설계하는 10년 차 수석 UI/UX 디자이너이자 프론트엔드 개발자입니다.
+
+건설사 현장 소장 및 관리자급 직원이 매일 아침 출근하여 가장 먼저 확인해야 하는 '건설 현장 종합 관리 대시보드'를 단일 HTML 파일로 제작해 주세요.
+
+아래의 상세 요구사항을 반드시 모두 반영하여 코드를 작성해야 합니다.
+
+**1. 기술 스택 및 환경**
+- HTML5
+- Tailwind CSS (CDN 사용)
+- Chart.js (CDN 사용, 데이터 시각화용)
+- Lucide Icons 또는 FontAwesome (CDN 사용, 아이콘용)
+- 폰트: 'Pretendard' (Google Fonts 또는 webfont import 사용)
+- 모든 CSS와 JavaScript는 HTML 파일 내에 포함된 단일 파일 구조로 작성
+
+**2. 레이아웃 및 디자인 가이드**
+- 모던하고 깔끔한 대시보드 스타일 (배경은 옅은 회색, 카드는 흰색 배경에 부드러운 그림자 효과)
+- 좌측: 네비게이션 사이드바 (종합 대시보드, 안전 관리, 공정 현황 등 메뉴 포함)
+- 상단: 헤더 (현장명, 진행 일차, 현재 날씨, 알림, 사용자 프로필 포함)
+- 반응형 웹 디자인 적용 (모바일, 태블릿, 데스크톱 지원)
+- 카드 요소에 마우스 오버 시 부드럽게 떠오르는 애니메이션(Hover) 효과 적용
+
+**3. 메인 콘텐츠 구성 (필수 포함 위젯)**
+- **[요약 KPI 카드 4개]**: 
+  1. 전체 공정률 (계획 대비 실적 증감 표시, 진행률 바 포함)
+  2. 무재해 일수 (안전 등급 및 최근 사고 건수 표시)
+  3. 금일 출역 인원 (직영/협력사 인원 구분 표시)
+  4. 누계 실행 예산 (예산 대비 지출 비율, 경고/정상 상태 표시)
+- **[데이터 차트 2개]**:
+  1. 주간 공정 현황 (계획 vs 실적을 비교하는 Line Chart)
+  2. 직종별 투입 인원 현황 (철근, 토목 등 파트별 Bar Chart)
+- **[실무 관리 위젯 2개]**:
+  1. 필수 안전 점검 항목 체크리스트 (체크 시 취소선이 그어지는 JS 인터랙션 포함)
+  2. 실시간 현장 이슈(Hot Issues) 테이블 (이슈명, 구분, 담당자, 상태 뱃지, 우선순위 포함)
+
+**4. 데이터 및 인터랙션**
+- 차트와 테이블에는 건설 현장에서 실제 사용할 법한 현실적인 가상의 더미 데이터를 채워주세요.
+- 자바스크립트를 활용해 차트가 정상적으로 렌더링되고, 체크리스트 클릭 등의 기본적인 인터랙션이 작동해야 합니다.
+
+위의 맥락과 지시사항을 바탕으로, 브라우저에서 바로 열어서 확인할 수 있는 완벽한 HTML 코드를 작성해 주세요.</div>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-outline btn-block" onclick="copyPrompt('prompt1')">프롬프트 복사</button>
+                            <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-block">Gemini 바로가기</a>
+                        </div>
                     </div>
                 </div>
 
@@ -1116,8 +1224,11 @@
                         신나는 음악과 함께 남은 업무도 더 즐겁게 클리어해보세요.
                     </p>
                     <div class="prompt-wrap">
-                        <div class="prompt-label">TRY THIS PROMPT</div>
-                        <div class="prompt-box" id="prompt2">산더미 같은 서류 작업도 리듬 타며 신나게 해치울 수 있는 경쾌한 K-Pop 댄스곡을 만들어줘! 가사에는 '폭풍 집중력', '완벽한 결과물', '우린 해낼 수 있어', '오늘도 멋지게 클리어' 같은 긍정적이고 에너지 넘치는 단어들을 넣어줘.</div>
+                        <div style="text-align: right; color: var(--muted); font-size: 0.8rem; margin-bottom: 8px;">( ※ 로그인 필요)</div>
+                        <div class="prompt-box" id="prompt2">
+                            <div class="prompt-label" style="margin-bottom: 12px;">TRY THIS PROMPT</div>
+                            산더미 같은 서류 작업도 리듬 타며 신나게 해치울 수 있는 경쾌한 K-Pop 댄스곡을 만들어줘! 가사에는 '폭풍 집중력', '완벽한 결과물', '우린 해낼 수 있어', '오늘도 멋지게 클리어' 같은 긍정적이고 에너지 넘치는 단어들을 넣어줘.
+                        </div>
                     </div>
                     <div class="btn-group">
                         <button class="btn btn-outline btn-block" onclick="copyPrompt('prompt2')">프롬프트 복사</button>
@@ -1127,7 +1238,7 @@
             </div>
 
             <div class="booth-notice">
-                AI 체험 결과물을 <strong>AI디자인랩 (<span class="email-copy" onclick="copyEmail()" title="클릭하여 복사">ai_design_lab@hdec.co.kr</span>)</strong>으로 보내주시면,<br>
+                재밌으신가요? AI로 즐겁게 작업해보시고, 더 좋은 결과물을 <strong>AI디자인랩 (<span class="email-copy" onclick="copyEmail()" title="클릭하여 복사">ai_design_lab@hdec.co.kr</span>)</strong>으로 보내주신 분들 중<br>
                 우수작을 선정하여 스타벅스 상품권을 보내 드립니다~!
             </div>
 
@@ -1163,6 +1274,19 @@
                     });
                 });
             });
+            // Gemini 카드 스크롤: 마우스가 카드 위에 있을 때 휠 스크롤이 카드 내부에서 작동하도록
+            const cardScrollArea = document.querySelector('.booth-card--gemini .card-scroll-area');
+            if (cardScrollArea) {
+                cardScrollArea.addEventListener('wheel', (e) => {
+                    const { scrollTop, scrollHeight, clientHeight } = cardScrollArea;
+                    const atTop = scrollTop <= 0;
+                    const atBottom = scrollTop + clientHeight >= scrollHeight - 1;
+                    if ((e.deltaY < 0 && !atTop) || (e.deltaY > 0 && !atBottom)) {
+                        e.stopPropagation();
+                    }
+                }, { passive: false });
+                cardScrollArea.setAttribute('tabindex', '0');
+            }
         });
 
         function roundRectPath(ctx, x, y, width, height, radius) {
@@ -1187,11 +1311,13 @@
         let aiItemCooldown = 300;
 
         const obstacleEmojis = ['📁', '📊', '📑', '🗄️', '📈'];
+
         let playerTransformImg = null;
         (function preloadTransformImg() {
             const img = new Image();
             img.onload = () => { playerTransformImg = img; };
-            img.src = 'assets/player-transform.png';
+            img.onerror = () => { console.error('Failed to load transform image'); };
+            img.src = 'https://raw.githubusercontent.com/SinaBroMan/super_character/refs/heads/main/super_character.png';
         })();
 
         const itemTypes = [
@@ -1408,43 +1534,82 @@
             }
 
             if (player.isInvincible) {
-                if (playerTransformImg && playerTransformImg.complete && playerTransformImg.naturalWidth > 0) {
-                    const imgW = 90, imgH = 110;
-                    ctx.rotate(Math.PI / 2.2);
-                    ctx.drawImage(playerTransformImg, -imgW / 2, -imgH - 10, imgW, imgH);
-                    ctx.rotate(-Math.PI / 2.2);
-                } else {
-                    ctx.beginPath();
-                    const auraRadius = 60 + Math.sin(time / 80) * 10;
-                    ctx.arc(0, 0, auraRadius, 0, Math.PI * 2);
-                    const gradient = ctx.createRadialGradient(0, 0, 10, 0, 0, auraRadius);
-                    gradient.addColorStop(0, 'rgba(255, 215, 0, 0.7)');
-                    gradient.addColorStop(0.5, 'rgba(255, 140, 0, 0.4)');
-                    gradient.addColorStop(1, 'rgba(255, 0, 0, 0)');
-                    ctx.fillStyle = gradient;
-                    ctx.fill();
+                // 불꽃 잘림 방지: transform 이미지일 때 먼저 padLeft 계산 후 전체(오라 포함)에 적용
+                let padLeft = 0, fLenVal = 110 + Math.sin(time / 80) * 25, fBaseXVal = 0, fBaseYVal = 0, drawXVal = 0, drawYVal = 0, imgWVal = 0, imgHVal = 0;
+                if (playerTransformImg && playerTransformImg.complete) {
+                    const targetH = player.height * 2.2;
+                    const aspectRatio = playerTransformImg.naturalWidth / playerTransformImg.naturalHeight;
+                    imgWVal = targetH * aspectRatio;
+                    imgHVal = targetH;
+                    drawXVal = -imgWVal * 0.56;
+                    drawYVal = -imgHVal / 2;
+                    fBaseXVal = drawXVal + imgWVal * 0.08;
+                    fBaseYVal = drawYVal + imgHVal * 0.65;
+                    const flameTipX = cx + (fBaseXVal - fLenVal);
+                    if (flameTipX < 0) padLeft = -flameTipX;  // 불꽃 끝을 x=0으로 맞추어 전체 노출
+                    if (padLeft > 0) ctx.translate(padLeft, 0);
+                }
+
+                ctx.beginPath();
+                const auraRadius = 60 + Math.sin(time / 80) * 10;
+                ctx.arc(0, 0, auraRadius, 0, Math.PI * 2);
+                const gradient = ctx.createRadialGradient(0, 0, 10, 0, 0, auraRadius);
+                gradient.addColorStop(0, 'rgba(255, 215, 0, 0.7)');
+                gradient.addColorStop(0.5, 'rgba(255, 140, 0, 0.4)');
+                gradient.addColorStop(1, 'rgba(255, 0, 0, 0)');
+                ctx.fillStyle = gradient;
+                ctx.fill();
+                if (playerTransformImg && playerTransformImg.complete) {
+                    const drawX = drawXVal, drawY = drawYVal, imgW = imgWVal, imgH = imgHVal;
+                    const fBaseX = fBaseXVal, fBaseY = fBaseYVal;
+                    let fLen = fLenVal;
+                    
                     ctx.save();
-                    ctx.lineCap = 'round';
-                    for (let i = 0; i < 6; i++) {
-                        const streakShift = ((time / 9) + i * 28) % 140;
-                        const yOffset = -24 + i * 9 + Math.sin((time / 80) + i) * 2.5;
-                        const startX = -34 - streakShift;
-                        const endX = -118 - streakShift * 1.35;
-                        ctx.strokeStyle = i % 2 === 0 ? 'rgba(156, 245, 255, 0.85)' : 'rgba(255, 255, 255, 0.52)';
-                        ctx.lineWidth = i < 2 ? 3.6 : 2.4;
-                        ctx.beginPath();
-                        ctx.moveTo(startX, yOffset);
-                        ctx.lineTo(endX, yOffset + (i % 2 === 0 ? -1.5 : 1.5));
-                        ctx.stroke();
-                    }
-                    for (let i = 0; i < 10; i++) {
-                        const particleShift = ((time / 7) + i * 22) % 180;
-                        const px = -45 - particleShift;
-                        const py = -30 + (i * 6.5) % 56;
-                        ctx.fillStyle = i % 2 === 0 ? 'rgba(255,255,255,0.55)' : 'rgba(125, 231, 255, 0.5)';
-                        ctx.fillRect(px, py, 7, 1.6);
-                    }
+                    const fW   = 28 + Math.sin(time / 55) * 8;
+
+                    // 외부 불꽃 (주황)
+                    const fg1 = ctx.createRadialGradient(fBaseX, fBaseY, 3, fBaseX - fLen * 0.45, fBaseY, fLen);
+                    fg1.addColorStop(0, 'rgba(255, 90, 0, 1)');
+                    fg1.addColorStop(0.6, 'rgba(255, 50, 0, 0.6)');
+                    fg1.addColorStop(1,   'rgba(255, 30, 0, 0)');
+                    ctx.fillStyle = fg1;
+                    ctx.beginPath();
+                    ctx.moveTo(fBaseX, fBaseY - fW);
+                    ctx.quadraticCurveTo(fBaseX - fLen * 0.5, fBaseY, fBaseX - fLen, fBaseY);
+                    ctx.quadraticCurveTo(fBaseX - fLen * 0.5, fBaseY, fBaseX, fBaseY + fW);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // 중간 불꽃 (노랑)
+                    const fg2 = ctx.createRadialGradient(fBaseX, fBaseY, 1, fBaseX - fLen * 0.38, fBaseY, fLen * 0.7);
+                    fg2.addColorStop(0, 'rgba(255, 220, 40, 1)');
+                    fg2.addColorStop(1, 'rgba(255, 140, 0, 0)');
+                    ctx.fillStyle = fg2;
+                    ctx.beginPath();
+                    ctx.moveTo(fBaseX, fBaseY - fW * 0.55);
+                    ctx.quadraticCurveTo(fBaseX - fLen * 0.4, fBaseY, fBaseX - fLen * 0.7, fBaseY);
+                    ctx.quadraticCurveTo(fBaseX - fLen * 0.4, fBaseY, fBaseX, fBaseY + fW * 0.55);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // 코어 (밝은 흰-노랑)
+                    ctx.fillStyle = 'rgba(255, 255, 200, 0.95)';
+                    ctx.beginPath();
+                    ctx.moveTo(fBaseX, fBaseY - fW * 0.28);
+                    ctx.quadraticCurveTo(fBaseX - fLen * 0.2, fBaseY, fBaseX - fLen * 0.36, fBaseY);
+                    ctx.quadraticCurveTo(fBaseX - fLen * 0.2, fBaseY, fBaseX, fBaseY + fW * 0.28);
+                    ctx.closePath();
+                    ctx.fill();
                     ctx.restore();
+
+                    // 2) 캐릭터 이미지 위에 그리기 (불꽃 위에 캐릭터)
+                    ctx.drawImage(playerTransformImg, drawX, drawY, imgW, imgH);
+
+                    // #region agent log
+                    const _ty = player.y + 30 + hoverOffset;
+                    fetch('http://127.0.0.1:7243/ingest/2d50b523-ba2c-4a57-9611-0df5bf337ad9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:flame-v2',message:'Flame BEFORE image (reverted)',data:{fBaseX_abs:Math.round(cx+fBaseX),fTipX_abs:Math.round(cx+fBaseX-fLen),imgLeft_abs:Math.round(cx+drawX),imgRight_abs:Math.round(cx+drawX+imgW)},timestamp:Date.now(),hypothesisId:'H-order'})}).catch(()=>{});
+                    // #endregion
+                } else {
                     ctx.rotate(Math.PI / 2.2);
                     ctx.fillStyle = '#ff0844';
                     ctx.beginPath();
