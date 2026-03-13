@@ -1340,7 +1340,7 @@
             obstacleCooldown = 0;
             aiItemCooldown = 300;
 
-            stars = Array.from({ length: 80 }, () => ({
+            stars = Array.from({ length: 50 }, () => ({
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
                 size: Math.random() * 2,
@@ -1395,12 +1395,13 @@
         window.addEventListener('touchstart', jumpAction, { passive: false });
 
         function spawnTextEffect(text, x, y, color = '#00f2fe', align = 'left', size = 20, life = 90) {
+            if (textEffects.length >= 10) textEffects.splice(0, 2); /* 겹칠 때 과부하 방지 */
             textEffects.push({ text, x, y, life, maxLife: life, color, align, size });
         }
 
         /* 레벨업 시 오른쪽 상단 꼭짓점에서 문서 다발 흩뿌리기 */
         function spawnDocumentScatter() {
-            const count = 12 + Math.floor(Math.random() * 8);
+            const count = documentParticles.length > 20 ? 4 : 8 + Math.floor(Math.random() * 4); /* 겹칠 때 과부하 방지 */
             for (let i = 0; i < count; i++) {
                 const w = 18 + Math.random() * 28;
                 const h = 24 + Math.random() * 36;
@@ -1416,7 +1417,7 @@
                     x: startX, y: startY, w, h,
                     vx, vy, rot, rotSpeed,
                     life: 1, maxLife: 1,
-                    lines: Math.floor(3 + Math.random() * 5)
+                    lines: Math.floor(2 + Math.random() * 2)
                 });
             }
         }
@@ -1424,7 +1425,8 @@
         /* 장애물 격파 전용 파티클 - 파쇄/폭발 느낌 (디자인: 노란-주황 톤, 파편 비산) */
         function spawnBreakParticles(x, y) {
             const colors = ['#ffeb3b', '#ffca66', '#ff9800', '#ff6b35', '#fff8e1', '#ffecb3'];
-            for (let i = 0; i < 24; i++) {
+            const maxParticles = breakParticles.length > 50 ? 6 : 14; /* 겹칠 때 과부하 방지 */
+            for (let i = 0; i < maxParticles; i++) {
                 const angle = Math.random() * Math.PI * 2;
                 const speed = 5 + Math.random() * 10;
                 const size = 3 + Math.random() * 8;
@@ -1466,8 +1468,8 @@
                 ctx.fillRect(b.x, canvas.height - 50 - b.h, b.w, b.h);
 
                 ctx.fillStyle = 'rgba(255, 235, 59, 0.3)';
-                for (let wy = 20; wy < b.h - 20; wy += 30) {
-                    for (let wx = 10; wx < b.w - 15; wx += 25) {
+                for (let wy = 20; wy < b.h - 20; wy += 45) {
+                    for (let wx = 10; wx < b.w - 15; wx += 38) {
                         if ((b.windowPattern + wx + wy) % 3 !== 0) {
                             ctx.fillRect(b.x + wx, canvas.height - 50 - b.h + wy, 10, 15);
                         }
@@ -1739,7 +1741,7 @@
                 ctx.save();
                 ctx.globalAlpha = p.life;
                 ctx.fillStyle = p.color;
-                ctx.shadowBlur = 6;
+                ctx.shadowBlur = 3;
                 ctx.shadowColor = p.color;
                 const s = Math.max(1.5, p.size);
                 if (p.shape === 'rect') {
@@ -1956,7 +1958,7 @@
                 ctx.save();
                 const hoverY = item.y - (pulse * 8);
 
-                ctx.shadowBlur = 20 + pulse * 20;
+                ctx.shadowBlur = 10 + pulse * 8; /* 경량화: 이전 20~40 → 10~18 */
                 ctx.shadowColor = item.color;
 
                 const grad = ctx.createLinearGradient(item.x, hoverY, item.x, hoverY + item.height);
