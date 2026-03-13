@@ -1394,7 +1394,7 @@
         window.addEventListener('mousedown', jumpAction);
         window.addEventListener('touchstart', jumpAction, { passive: false });
 
-        const CENTER_AUTOMATION_LINE_HEIGHT = 48; /* 업무 자동화 메시지 세로 간격(px) - 겹침 방지 */
+        const CENTER_AUTOMATION_LINE_HEIGHT = 56; /* 업무 자동화 메시지 세로 간격(px) - 겹침 방지 */
         function spawnTextEffect(text, x, y, color = '#00f2fe', align = 'left', size = 20, life = 90, stackGroup = null) {
             /* stackGroup: 같은 그룹 메시지가 있으면 바로 아래에 쌓음 (겹침 방지) */
             if (stackGroup) {
@@ -1895,6 +1895,9 @@
                 obstacleCooldown = minCooldown + Math.floor(Math.random() * 15);
             }
 
+            /* 1단계: 이번 프레임에 격파될/제거될 장애물 수집 (루프 내 splice 시 인덱스 꼬임 방지) */
+            const toDestroy = [];
+            const toRemoveOffScreen = [];
             for (let i = obstacles.length - 1; i >= 0; i--) {
                 const obs = obstacles[i];
                 obs.x -= currentObjectSpeed;
@@ -1904,11 +1907,9 @@
                 ctx.fillText(obs.emoji, obs.x, obs.y + 35);
 
                 const hitMargin = 10;
-                /* 무적 시: 오라/공격 범위로 판정 확장 - 아래쪽·오른쪽 장애물까지 격파 */
                 let collided = false;
                 if (player.isInvincible) {
-                    const invincibleMarginX = 50;
-                    const invincibleMarginY = 100;
+                    const invincibleMarginX = 50, invincibleMarginY = 100;
                     collided = (player.x - invincibleMarginX < obs.x + obs.width && player.x + player.width + invincibleMarginX > obs.x &&
                         player.y - 20 < obs.y + obs.height && player.y + player.height + invincibleMarginY > obs.y);
                 } else {
@@ -1916,27 +1917,35 @@
                         player.y + hitMargin < obs.y + obs.height && player.y + player.height - hitMargin > obs.y);
                 }
                 if (collided) {
-
                     if (player.isInvincible) {
-                        /* 장애물 격파 효과 - 파쇄 파티클 + 텍스트 */
-                        const cx = obs.x + obs.width / 2, cy = obs.y + obs.height / 2;
-                        spawnBreakParticles(cx, cy);
-                        const effectText = breakTexts[Math.floor(Math.random() * breakTexts.length)];
-                        spawnTextEffect(effectText, obs.x - 10, obs.y - 15, '#ffeb3b', 'left', 28, 90);
-                        /* 업무 자동화 메시지 - 게임 화면 가운데에 표시, 여러 개 격파 시 세로로 쌓임 */
-                        const automationMsg = automationMessages[Math.floor(Math.random() * automationMessages.length)];
-                        spawnTextEffect(automationMsg, canvas.width / 2, canvas.height / 2, '#ffd86b', 'center', 26, 120, 'centerAutomation');
-
-                        obstacles.splice(i, 1);
+                        toDestroy.push({ index: i, obs });
                     } else if (player.graceTimer > 0) {
                         /* 보호막 통과 */
                     } else {
                         endGame(false);
                         return;
                     }
+                } else if (obs.x < -50) {
+                    toRemoveOffScreen.push({ index: i });
                 }
-                if (obs.x < -50) obstacles.splice(i, 1);
             }
+
+            /* 2단계: 격파된 장애물 일괄 처리 - 가운데 메시지는 0, 56, 112... 순으로 Y 오프셋 (겹침 방지) */
+            const CENTER_LINE = 56;
+            const baseY = canvas.height / 2;
+            const baseX = canvas.width / 2;
+            toDestroy.forEach((entry, idx) => {
+                const obs = entry.obs;
+                const cx = obs.x + obs.width / 2, cy = obs.y + obs.height / 2;
+                spawnBreakParticles(cx, cy);
+                const effectText = breakTexts[Math.floor(Math.random() * breakTexts.length)];
+                spawnTextEffect(effectText, obs.x - 10, obs.y - 15, '#ffeb3b', 'left', 28, 90);
+                const automationMsg = automationMessages[Math.floor(Math.random() * automationMessages.length)];
+                spawnTextEffect(automationMsg, baseX, baseY, '#ffd86b', 'center', 26, 120, 'centerAutomation');
+            });
+            /* 인덱스 내림차순으로 한 번에 제거 (순서 잘못 시 인덱스 꼬임 방지) */
+            const toRemoveAll = [...toDestroy, ...toRemoveOffScreen];
+            toRemoveAll.sort((a, b) => b.index - a.index).forEach(entry => obstacles.splice(entry.index, 1));
 
             if (aiItemCooldown > 0) aiItemCooldown--;
             const currentAiSpawnRate = currentLevel >= 1 ? 0.004 : 0.0025;
