@@ -1086,11 +1086,13 @@
                     </div>
                     <div class="card-sub" style="position: relative;">
                         <p>
-                            복잡한 기획안과 현황판을 순식간에. <span class="canvas-feature-link" onclick="showCanvasGuide()" title="클릭하거나 마우스를 올려보세요">Canvas 기능</span>을 활용해 인터랙션 대시보드를 만들어보세요.
+                            복잡한 기획안과 현황판을 순식간에. <span class="canvas-feature-link" onclick="fetch('http://127.0.0.1:7243/ingest/2d50b523-ba2c-4a57-9611-0df5bf337ad9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:canvas-link',message:'Canvas feature link clicked',data:{clickTime:new Date().toISOString()},timestamp:Date.now(),runId:'debug-run',hypothesisId:'B'})}).catch(()=>{}); showCanvasGuide()" title="클릭하거나 마우스를 올려보세요">Canvas 기능</span>을 활용해 인터랙션 대시보드를 만들어보세요.
                             미리보기 기반으로 바로 구조를 확인할 수 있습니다.
                         </p>
                         <div class="canvas-guide-popover">
-                            <img src="assets/canvas-guide.png" alt="Gemini Canvas 사용 방법">
+                            <img src="https://raw.githubusercontent.com/SinaBroMan/canvas/refs/heads/main/notice%20image.png" alt="Gemini Canvas 사용 방법"
+                                 onload="fetch('http://127.0.0.1:7243/ingest/2d50b523-ba2c-4a57-9611-0df5bf337ad9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:popover-img',message:'Popover image loaded successfully',data:{src:'github-image',naturalWidth:this.naturalWidth,naturalHeight:this.naturalHeight},timestamp:Date.now(),runId:'debug-run-fix',hypothesisId:'A'})}).catch(()=>{})"
+                                 onerror="fetch('http://127.0.0.1:7243/ingest/2d50b523-ba2c-4a57-9611-0df5bf337ad9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:popover-img',message:'Popover image failed to load',data:{src:'github-image',error:'Network or GitHub issue'},timestamp:Date.now(),runId:'debug-run-fix',hypothesisId:'A,C'})}).catch(()=>{})">
                             <div class="guide-caption">1. "도구" 클릭 → 2. "Canvas" 선택</div>
                         </div>
                     </div>
@@ -1141,7 +1143,9 @@
 
     <div id="canvas-guide-modal" class="canvas-guide-modal" onclick="closeCanvasGuide(event)">
         <div class="modal-inner" onclick="event.stopPropagation()">
-            <img src="assets/canvas-guide.png" alt="Gemini Canvas 사용 방법">
+            <img src="https://raw.githubusercontent.com/SinaBroMan/canvas/refs/heads/main/notice%20image.png" alt="Gemini Canvas 사용 방법" 
+                 onload="fetch('http://127.0.0.1:7243/ingest/2d50b523-ba2c-4a57-9611-0df5bf337ad9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:modal-img',message:'Modal image loaded successfully',data:{src:'github-image',naturalWidth:this.naturalWidth,naturalHeight:this.naturalHeight},timestamp:Date.now(),runId:'debug-run-fix',hypothesisId:'A'})}).catch(()=>{})"
+                 onerror="fetch('http://127.0.0.1:7243/ingest/2d50b523-ba2c-4a57-9611-0df5bf337ad9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:modal-img',message:'Modal image failed to load',data:{src:'github-image',error:'Network or GitHub issue'},timestamp:Date.now(),runId:'debug-run-fix',hypothesisId:'A,C'})}).catch(()=>{})">
             <div class="guide-caption" style="margin-top:12px; color:var(--muted); font-size:0.9rem;">1. "도구" 클릭 → 2. "Canvas" 선택</div>
         </div>
     </div>
@@ -1155,6 +1159,10 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            // #region agent log
+            fetch('http://127.0.0.1:7243/ingest/2d50b523-ba2c-4a57-9611-0df5bf337ad9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:DOMContentLoaded',message:'Page loaded, checking canvas elements',data:{canvasModal:!!document.getElementById('canvas-guide-modal'),canvasPopover:!!document.querySelector('.canvas-guide-popover'),canvasLink:!!document.querySelector('.canvas-feature-link')},timestamp:Date.now(),runId:'debug-run',hypothesisId:'D,E'})}).catch(()=>{});
+            // #endregion
+            
             document.querySelectorAll('.feature-item').forEach((item) => {
                 item.addEventListener('toggle', () => {
                     if (!item.open) return;
@@ -1163,6 +1171,13 @@
                     });
                 });
             });
+            
+            // #region agent log - Test image accessibility
+            const testImg = new Image();
+            testImg.onload = () => fetch('http://127.0.0.1:7243/ingest/2d50b523-ba2c-4a57-9611-0df5bf337ad9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:test-image',message:'Test image load successful',data:{src:'github-image',width:testImg.width,height:testImg.height},timestamp:Date.now(),runId:'debug-run-fix',hypothesisId:'A,C'})}).catch(()=>{});
+            testImg.onerror = () => fetch('http://127.0.0.1:7243/ingest/2d50b523-ba2c-4a57-9611-0df5bf337ad9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:test-image',message:'Test image load failed',data:{src:'github-image',error:'Network or GitHub access issue'},timestamp:Date.now(),runId:'debug-run-fix',hypothesisId:'A,C'})}).catch(()=>{});
+            testImg.src = 'https://raw.githubusercontent.com/SinaBroMan/canvas/refs/heads/main/notice%20image.png';
+            // #endregion
         });
 
         function roundRectPath(ctx, x, y, width, height, radius) {
@@ -1953,11 +1968,36 @@
         }
 
         function showCanvasGuide() {
-            document.getElementById('canvas-guide-modal').classList.add('show');
+            // #region agent log
+            fetch('http://127.0.0.1:7243/ingest/2d50b523-ba2c-4a57-9611-0df5bf337ad9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:1955',message:'showCanvasGuide function called',data:{timestamp:new Date().toISOString()},timestamp:Date.now(),runId:'debug-run',hypothesisId:'B'})}).catch(()=>{});
+            // #endregion
+            
+            const modal = document.getElementById('canvas-guide-modal');
+            
+            // #region agent log
+            fetch('http://127.0.0.1:7243/ingest/2d50b523-ba2c-4a57-9611-0df5bf337ad9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:1960',message:'Modal element found',data:{modalExists:!!modal,modalClasses:modal?.className},timestamp:Date.now(),runId:'debug-run',hypothesisId:'B'})}).catch(()=>{});
+            // #endregion
+            
+            if (modal) {
+                modal.classList.add('show');
+                
+                // #region agent log
+                fetch('http://127.0.0.1:7243/ingest/2d50b523-ba2c-4a57-9611-0df5bf337ad9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:1966',message:'Modal show class added',data:{finalClasses:modal.className},timestamp:Date.now(),runId:'debug-run',hypothesisId:'B'})}).catch(()=>{});
+                // #endregion
+            }
         }
         function closeCanvasGuide(e) {
+            // #region agent log
+            fetch('http://127.0.0.1:7243/ingest/2d50b523-ba2c-4a57-9611-0df5bf337ad9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:closeCanvasGuide',message:'closeCanvasGuide called',data:{targetId:e.target.id,shouldClose:e.target.id==='canvas-guide-modal'},timestamp:Date.now(),runId:'debug-run',hypothesisId:'E'})}).catch(()=>{});
+            // #endregion
+            
             if (e.target.id === 'canvas-guide-modal') {
-                document.getElementById('canvas-guide-modal').classList.remove('show');
+                const modal = document.getElementById('canvas-guide-modal');
+                modal.classList.remove('show');
+                
+                // #region agent log
+                fetch('http://127.0.0.1:7243/ingest/2d50b523-ba2c-4a57-9611-0df5bf337ad9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:closeCanvasGuide-end',message:'Modal show class removed',data:{finalClasses:modal.className},timestamp:Date.now(),runId:'debug-run',hypothesisId:'E'})}).catch(()=>{});
+                // #endregion
             }
         }
         document.addEventListener('keydown', (e) => {
