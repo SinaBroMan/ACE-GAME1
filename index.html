@@ -652,6 +652,94 @@
             opacity: 0.85;
         }
 
+        .canvas-feature-link {
+            color: var(--primary);
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            font-weight: 700;
+            transition: opacity 0.2s ease, color 0.2s ease;
+            padding: 2px 4px;
+            border-radius: 4px;
+            background: rgba(125, 231, 255, 0.12);
+        }
+        .canvas-feature-link:hover {
+            opacity: 0.95;
+            color: #9cf5ff;
+            background: rgba(125, 231, 255, 0.2);
+        }
+
+        .canvas-guide-popover {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 10px;
+            z-index: 100;
+            background: rgba(8, 13, 26, 0.98);
+            border: 1px solid rgba(125, 231, 255, 0.3);
+            border-radius: 16px;
+            padding: 12px;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.08);
+            max-width: min(520px, 90vw);
+            pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+            transform: translateY(4px);
+        }
+        .card-sub:has(.canvas-feature-link:hover) .canvas-guide-popover,
+        .canvas-guide-popover:hover {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        .canvas-guide-popover img {
+            display: block;
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+        .canvas-guide-popover .guide-caption {
+            margin-top: 10px;
+            font-size: 0.88rem;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        .canvas-guide-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            background: rgba(0,0,0,0.75);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+        }
+        .canvas-guide-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .canvas-guide-modal .modal-inner {
+            max-width: 90vw;
+            max-height: 90vh;
+            background: rgba(15, 23, 42, 0.98);
+            border-radius: 20px;
+            padding: 16px;
+            border: 1px solid rgba(125, 231, 255, 0.25);
+            box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+        }
+        .canvas-guide-modal img {
+            display: block;
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 12px;
+        }
+
         .booth-container {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -996,10 +1084,16 @@
                         </div>
                         <span class="tool-tag">Google Login</span>
                     </div>
-                    <p class="card-sub">
-                        복잡한 기획안과 현황판을 순식간에. Canvas 기능을 활용해 인터랙션 대시보드를 만들어보세요.
-                        미리보기 기반으로 바로 구조를 확인할 수 있습니다.
-                    </p>
+                    <div class="card-sub" style="position: relative;">
+                        <p>
+                            복잡한 기획안과 현황판을 순식간에. <span class="canvas-feature-link" onclick="showCanvasGuide()" title="클릭하거나 마우스를 올려보세요">Canvas 기능</span>을 활용해 인터랙션 대시보드를 만들어보세요.
+                            미리보기 기반으로 바로 구조를 확인할 수 있습니다.
+                        </p>
+                        <div class="canvas-guide-popover">
+                            <img src="assets/canvas-guide.png" alt="Gemini Canvas 사용 방법">
+                            <div class="guide-caption">1. "도구" 클릭 → 2. "Canvas" 선택</div>
+                        </div>
+                    </div>
                     <div class="prompt-wrap">
                         <div class="prompt-label">TRY THIS PROMPT</div>
                         <div class="prompt-box" id="prompt1">건설사 직원이 매일 확인해야 할 지표를 볼수 있는 인터랙션 대시보드를 HTML파일로 생성해줘.</div>
@@ -1045,6 +1139,13 @@
 
     <div id="toast" class="toast">프롬프트가 복사되었습니다! (Ctrl+V)</div>
 
+    <div id="canvas-guide-modal" class="canvas-guide-modal" onclick="closeCanvasGuide(event)">
+        <div class="modal-inner" onclick="event.stopPropagation()">
+            <img src="assets/canvas-guide.png" alt="Gemini Canvas 사용 방법">
+            <div class="guide-caption" style="margin-top:12px; color:var(--muted); font-size:0.9rem;">1. "도구" 클릭 → 2. "Canvas" 선택</div>
+        </div>
+    </div>
+
     <script>
         function hideAllScreens() {
             document.getElementById('intro-screen').classList.add('hidden');
@@ -1080,17 +1181,27 @@
         const gameShell = document.querySelector('#game-screen .screen-shell');
 
         let gameLoop, gameActive = false, score = 0, speedMultiplier = 1, currentLevel = 0;
-        let player, obstacles = [], items = [], textEffects = [], stars = [], jumpEffects = [];
+        let player, obstacles = [], items = [], textEffects = [], stars = [], jumpEffects = [], breakParticles = [], documentParticles = [];
         let backBuildings = [], frontBuildings = [];
         let obstacleCooldown = 0;
         let aiItemCooldown = 300;
 
         const obstacleEmojis = ['📁', '📊', '📑', '🗄️', '📈'];
+        let playerTransformImg = null;
+        (function preloadTransformImg() {
+            const img = new Image();
+            img.onload = () => { playerTransformImg = img; };
+            img.src = 'assets/player-transform.png';
+        })();
+
         const itemTypes = [
             { name: 'Gemini', color: '#00f2fe' },
             { name: 'Copilot', color: '#34d399' },
             { name: 'HAI', color: '#ff758c' }
         ];
+
+        /* 장애물 격파 시 장애물 위치에 표시 (원래 코드) */
+        const breakTexts = ['발표자료 격파!', '보고서 파쇄!', '추진안 통과!', '현황취합 끝!', '엑셀데이터 컷!'];
 
         /* 업무 자동화 메시지 - 아이템 먹고 장애물 부술 때 게임 화면 가운데에 표시 */
         const automationMessages = [
@@ -1132,6 +1243,8 @@
             items = [];
             textEffects = [];
             jumpEffects = [];
+            breakParticles = [];
+            documentParticles = [];
             backBuildings = [];
             frontBuildings = [];
             obstacleCooldown = 0;
@@ -1193,6 +1306,49 @@
             textEffects.push({ text, x, y, life, maxLife: life, color, align, size });
         }
 
+        /* 레벨업 시 오른쪽 상단 꼭짓점에서 문서 다발 흩뿌리기 */
+        function spawnDocumentScatter() {
+            const count = 12 + Math.floor(Math.random() * 8);
+            for (let i = 0; i < count; i++) {
+                const w = 18 + Math.random() * 28;
+                const h = 24 + Math.random() * 36;
+                const startX = canvas.width + Math.random() * 20;
+                const startY = -20 + Math.random() * 20;
+                const angle = Math.PI + Math.random() * Math.PI * 0.5; // 왼쪽 아래 방향 (180°~270°)
+                const speed = 4 + Math.random() * 8;
+                const vx = Math.cos(angle) * speed; // 왼쪽으로
+                const vy = -Math.sin(angle) * speed; // 아래쪽으로
+                const rot = (Math.random() - 0.5) * 0.4;
+                const rotSpeed = (Math.random() - 0.5) * 0.08;
+                documentParticles.push({
+                    x: startX, y: startY, w, h,
+                    vx, vy, rot, rotSpeed,
+                    life: 1, maxLife: 1,
+                    lines: Math.floor(3 + Math.random() * 5)
+                });
+            }
+        }
+
+        /* 장애물 격파 전용 파티클 - 파쇄/폭발 느낌 (디자인: 노란-주황 톤, 파편 비산) */
+        function spawnBreakParticles(x, y) {
+            const colors = ['#ffeb3b', '#ffca66', '#ff9800', '#ff6b35', '#fff8e1', '#ffecb3'];
+            for (let i = 0; i < 24; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 5 + Math.random() * 10;
+                const size = 3 + Math.random() * 8;
+                breakParticles.push({
+                    x, y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed - 4,
+                    size,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    life: 1,
+                    maxLife: 1,
+                    shape: Math.random() > 0.5 ? 'circle' : 'rect'
+                });
+            }
+        }
+
         function drawCityscape() {
             for (let i = 0; i < backBuildings.length; i++) {
                 const b = backBuildings[i];
@@ -1252,123 +1408,133 @@
             }
 
             if (player.isInvincible) {
-                ctx.beginPath();
-                const auraRadius = 60 + Math.sin(time / 80) * 10;
-                ctx.arc(0, 0, auraRadius, 0, Math.PI * 2);
-                const gradient = ctx.createRadialGradient(0, 0, 10, 0, 0, auraRadius);
-                gradient.addColorStop(0, 'rgba(255, 215, 0, 0.7)');
-                gradient.addColorStop(0.5, 'rgba(255, 140, 0, 0.4)');
-                gradient.addColorStop(1, 'rgba(255, 0, 0, 0)');
-                ctx.fillStyle = gradient;
-                ctx.fill();
-
-                ctx.save();
-                ctx.lineCap = 'round';
-                for (let i = 0; i < 6; i++) {
-                    const streakShift = ((time / 9) + i * 28) % 140;
-                    const yOffset = -24 + i * 9 + Math.sin((time / 80) + i) * 2.5;
-                    const startX = -34 - streakShift;
-                    const endX = -118 - streakShift * 1.35;
-                    ctx.strokeStyle = i % 2 === 0 ? 'rgba(156, 245, 255, 0.85)' : 'rgba(255, 255, 255, 0.52)';
-                    ctx.lineWidth = i < 2 ? 3.6 : 2.4;
+                if (playerTransformImg && playerTransformImg.complete && playerTransformImg.naturalWidth > 0) {
+                    const imgW = 90, imgH = 110;
+                    ctx.rotate(Math.PI / 2.2);
+                    ctx.drawImage(playerTransformImg, -imgW / 2, -imgH - 10, imgW, imgH);
+                    ctx.rotate(-Math.PI / 2.2);
+                } else {
                     ctx.beginPath();
-                    ctx.moveTo(startX, yOffset);
-                    ctx.lineTo(endX, yOffset + (i % 2 === 0 ? -1.5 : 1.5));
+                    const auraRadius = 60 + Math.sin(time / 80) * 10;
+                    ctx.arc(0, 0, auraRadius, 0, Math.PI * 2);
+                    const gradient = ctx.createRadialGradient(0, 0, 10, 0, 0, auraRadius);
+                    gradient.addColorStop(0, 'rgba(255, 215, 0, 0.7)');
+                    gradient.addColorStop(0.5, 'rgba(255, 140, 0, 0.4)');
+                    gradient.addColorStop(1, 'rgba(255, 0, 0, 0)');
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                    ctx.save();
+                    ctx.lineCap = 'round';
+                    for (let i = 0; i < 6; i++) {
+                        const streakShift = ((time / 9) + i * 28) % 140;
+                        const yOffset = -24 + i * 9 + Math.sin((time / 80) + i) * 2.5;
+                        const startX = -34 - streakShift;
+                        const endX = -118 - streakShift * 1.35;
+                        ctx.strokeStyle = i % 2 === 0 ? 'rgba(156, 245, 255, 0.85)' : 'rgba(255, 255, 255, 0.52)';
+                        ctx.lineWidth = i < 2 ? 3.6 : 2.4;
+                        ctx.beginPath();
+                        ctx.moveTo(startX, yOffset);
+                        ctx.lineTo(endX, yOffset + (i % 2 === 0 ? -1.5 : 1.5));
+                        ctx.stroke();
+                    }
+                    for (let i = 0; i < 10; i++) {
+                        const particleShift = ((time / 7) + i * 22) % 180;
+                        const px = -45 - particleShift;
+                        const py = -30 + (i * 6.5) % 56;
+                        ctx.fillStyle = i % 2 === 0 ? 'rgba(255,255,255,0.55)' : 'rgba(125, 231, 255, 0.5)';
+                        ctx.fillRect(px, py, 7, 1.6);
+                    }
+                    ctx.restore();
+                    ctx.rotate(Math.PI / 2.2);
+                    ctx.fillStyle = '#ff0844';
+                    ctx.beginPath();
+                    ctx.moveTo(-10, -15);
+                    ctx.lineTo(-35, 25 + Math.sin(time / 60) * 15);
+                    ctx.lineTo(-10, 45 + Math.cos(time / 60) * 15);
+                    ctx.lineTo(10, -5);
+                    ctx.fill();
+                    ctx.lineWidth = 5;
+                    ctx.lineCap = 'round';
+                    ctx.strokeStyle = '#d32f2f';
+                    ctx.beginPath();
+                    ctx.moveTo(0, 5);
+                    ctx.lineTo(-5, 35);
                     ctx.stroke();
+                    ctx.strokeStyle = '#b71c1c';
+                    ctx.beginPath();
+                    ctx.moveTo(0, 5);
+                    ctx.lineTo(5, 35);
+                    ctx.stroke();
+                    ctx.fillStyle = '#1976d2';
+                    ctx.fillRect(-12, -15, 24, 25);
+                    ctx.fillStyle = '#ffeb3b';
+                    ctx.beginPath();
+                    ctx.moveTo(0, -10);
+                    ctx.lineTo(6, -5);
+                    ctx.lineTo(0, 3);
+                    ctx.lineTo(-6, -5);
+                    ctx.fill();
+                    ctx.lineWidth = 4;
+                    ctx.strokeStyle = '#1565c0';
+                    ctx.beginPath();
+                    ctx.moveTo(0, -12);
+                    ctx.lineTo(15, 5);
+                    ctx.stroke();
+                    ctx.strokeStyle = '#1976d2';
+                    ctx.beginPath();
+                    ctx.moveTo(0, -12);
+                    ctx.lineTo(0, -45);
+                    ctx.stroke();
+                    ctx.translate(0, -15);
+                    ctx.rotate(-Math.PI / 2.2);
+                    ctx.font = '32px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'bottom';
+                    ctx.fillText('🧑🏻', 0, 5);
+                    ctx.rotate(Math.PI / 2.2);
+                    ctx.translate(0, 15);
                 }
-                for (let i = 0; i < 10; i++) {
-                    const particleShift = ((time / 7) + i * 22) % 180;
-                    const px = -45 - particleShift;
-                    const py = -30 + (i * 6.5) % 56;
-                    ctx.fillStyle = i % 2 === 0 ? 'rgba(255,255,255,0.55)' : 'rgba(125, 231, 255, 0.5)';
-                    ctx.fillRect(px, py, 7, 1.6);
-                }
-                ctx.restore();
-            }
-
-            if (player.isInvincible) ctx.rotate(Math.PI / 2.2);
-
-            if (player.isInvincible) {
-                ctx.fillStyle = '#ff0844';
-                ctx.beginPath();
-                ctx.moveTo(-10, -15);
-                ctx.lineTo(-35, 25 + Math.sin(time / 60) * 15);
-                ctx.lineTo(-10, 45 + Math.cos(time / 60) * 15);
-                ctx.lineTo(10, -5);
-                ctx.fill();
-            }
-
-            ctx.lineWidth = 5;
-            ctx.lineCap = 'round';
-
-            ctx.strokeStyle = player.isInvincible ? '#d32f2f' : '#1e293b';
-            ctx.beginPath();
-            ctx.moveTo(0, 5);
-            if (player.isInvincible) ctx.lineTo(-5, 35);
-            else if (player.jumps > 0) ctx.lineTo(-15, 20);
-            else ctx.lineTo(swing * 15, 25);
-            ctx.stroke();
-
-            ctx.strokeStyle = player.isInvincible ? '#b71c1c' : '#0f172a';
-            ctx.beginPath();
-            ctx.moveTo(0, 5);
-            if (player.isInvincible) ctx.lineTo(5, 35);
-            else if (player.jumps > 0) ctx.lineTo(10, 25);
-            else ctx.lineTo(-swing * 15, 25);
-            ctx.stroke();
-
-            ctx.fillStyle = player.isInvincible ? '#1976d2' : '#334155';
-            ctx.fillRect(-12, -15, 24, 25);
-
-            if (player.isInvincible) {
-                ctx.fillStyle = '#ffeb3b';
-                ctx.beginPath();
-                ctx.moveTo(0, -10);
-                ctx.lineTo(6, -5);
-                ctx.lineTo(0, 3);
-                ctx.lineTo(-6, -5);
-                ctx.fill();
             } else {
+                ctx.lineWidth = 5;
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = '#1e293b';
+                ctx.beginPath();
+                ctx.moveTo(0, 5);
+                if (player.jumps > 0) ctx.lineTo(-15, 20);
+                else ctx.lineTo(swing * 15, 25);
+                ctx.stroke();
+                ctx.strokeStyle = '#0f172a';
+                ctx.beginPath();
+                ctx.moveTo(0, 5);
+                if (player.jumps > 0) ctx.lineTo(10, 25);
+                else ctx.lineTo(-swing * 15, 25);
+                ctx.stroke();
+                ctx.fillStyle = '#334155';
+                ctx.fillRect(-12, -15, 24, 25);
                 ctx.strokeStyle = '#00f2fe';
                 ctx.lineWidth = 2;
                 ctx.beginPath();
                 ctx.moveTo(0, -15);
                 ctx.lineTo(0, 0);
                 ctx.stroke();
-            }
-
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = player.isInvincible ? '#1565c0' : '#1e293b';
-            ctx.beginPath();
-            ctx.moveTo(0, -12);
-            if (player.isInvincible) ctx.lineTo(15, 5);
-            else if (player.jumps > 0) ctx.lineTo(15, -25);
-            else ctx.lineTo(swing * 15, 5);
-            ctx.stroke();
-
-            ctx.strokeStyle = player.isInvincible ? '#1976d2' : '#334155';
-            ctx.beginPath();
-            ctx.moveTo(0, -12);
-            if (player.isInvincible) ctx.lineTo(0, -45);
-            else if (player.jumps > 0) ctx.lineTo(-15, -20);
-            else ctx.lineTo(-swing * 15, 5);
-            ctx.stroke();
-
-            ctx.save();
-            if (player.isInvincible) {
-                ctx.translate(0, -15);
-                ctx.rotate(-Math.PI / 2.2);
-                ctx.font = '32px Arial';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'bottom';
-                ctx.fillText('🧑🏻', 0, 5);
-            } else {
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = '#1e293b';
+                ctx.beginPath();
+                ctx.moveTo(0, -12);
+                if (player.jumps > 0) ctx.lineTo(15, -25);
+                else ctx.lineTo(swing * 15, 5);
+                ctx.stroke();
+                ctx.strokeStyle = '#334155';
+                ctx.beginPath();
+                ctx.moveTo(0, -12);
+                if (player.jumps > 0) ctx.lineTo(-15, -20);
+                else ctx.lineTo(-swing * 15, 5);
+                ctx.stroke();
                 ctx.font = '32px Arial';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'bottom';
                 ctx.fillText('🧑🏻', 0, -12);
             }
-            ctx.restore();
 
             if (player.graceTimer > 0) {
                 ctx.globalAlpha = 1.0;
@@ -1431,6 +1597,72 @@
                 if (eff.alpha <= 0) jumpEffects.splice(i, 1);
             }
 
+            /* 장애물 격파 파티클 - 파쇄/폭발 효과 (서류 파쇄 느낌) */
+            for (let i = breakParticles.length - 1; i >= 0; i--) {
+                const p = breakParticles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.25;
+                p.life -= 0.035;
+                p.size *= 0.97;
+
+                if (p.life <= 0) {
+                    breakParticles.splice(i, 1);
+                    continue;
+                }
+                ctx.save();
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.shadowBlur = 6;
+                ctx.shadowColor = p.color;
+                const s = Math.max(1.5, p.size);
+                if (p.shape === 'rect') {
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.vx * 0.1);
+                    ctx.fillRect(-s * 0.6, -s * 1.2, s * 1.2, s * 2.4);
+                } else {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, s, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.restore();
+            }
+
+            /* 레벨업 문서 다발 - 오른쪽에서 흩뿌려지는 효과 */
+            for (let i = documentParticles.length - 1; i >= 0; i--) {
+                const d = documentParticles[i];
+                d.x += d.vx;
+                d.y += d.vy;
+                d.vy += 0.15;
+                d.rot += d.rotSpeed;
+                d.life -= 0.018;
+
+                if (d.life <= 0 || d.x + d.w < -50) {
+                    documentParticles.splice(i, 1);
+                    continue;
+                }
+                ctx.save();
+                ctx.translate(d.x + d.w / 2, d.y + d.h / 2);
+                ctx.rotate(d.rot);
+                ctx.translate(-d.w / 2, -d.h / 2);
+                ctx.globalAlpha = d.life;
+                ctx.fillStyle = '#f5f5f5';
+                ctx.strokeStyle = 'rgba(180,180,180,0.6)';
+                ctx.lineWidth = 1;
+                ctx.fillRect(0, 0, d.w, d.h);
+                ctx.strokeRect(0, 0, d.w, d.h);
+                for (let L = 0; L < d.lines; L++) {
+                    const ly = 4 + (L * (d.h - 8) / Math.max(1, d.lines - 1));
+                    ctx.beginPath();
+                    ctx.moveTo(3, ly);
+                    ctx.lineTo(d.w - 3, ly);
+                    ctx.strokeStyle = 'rgba(140,140,140,0.5)';
+                    ctx.stroke();
+                }
+                ctx.restore();
+            }
+            ctx.globalAlpha = 1.0;
+
             score += 0.17;
             speedMultiplier = 1 + (score / 250);
 
@@ -1456,6 +1688,7 @@
                 const fontSize = currentLevel >= 2 ? 30 : 36;
                 spawnTextEffect(levelMsg, canvas.width / 2, canvas.height / 3, levelColor, 'center', fontSize, 150);
                 jumpEffects.push({ x: canvas.width / 2, y: canvas.height / 3, radius: 50, alpha: 1, color: '#ff0844' });
+                spawnDocumentScatter();
             }
 
             let obstacleSpawnRate = 0.025 + (score / 300) * 0.04;
@@ -1551,10 +1784,14 @@
                 if (collided) {
 
                     if (player.isInvincible) {
-                        /* 업무 자동화 메시지 - 게임 화면 가운데에 표시 (점수 증가 없음) */
+                        /* 장애물 격파 효과 - 파쇄 파티클 + 텍스트 */
+                        const cx = obs.x + obs.width / 2, cy = obs.y + obs.height / 2;
+                        spawnBreakParticles(cx, cy);
+                        const effectText = breakTexts[Math.floor(Math.random() * breakTexts.length)];
+                        spawnTextEffect(effectText, obs.x - 10, obs.y - 15, '#ffeb3b', 'left', 28, 90);
+                        /* 업무 자동화 메시지 - 게임 화면 가운데에 표시 */
                         const automationMsg = automationMessages[Math.floor(Math.random() * automationMessages.length)];
                         spawnTextEffect(automationMsg, canvas.width / 2, canvas.height / 2, '#ffd86b', 'center', 26, 120);
-                        jumpEffects.push({ x: obs.x + 20, y: obs.y + 20, radius: 5, alpha: 1, color: '#ff0844' });
 
                         obstacles.splice(i, 1);
                     } else if (player.graceTimer > 0) {
@@ -1714,6 +1951,18 @@
             hideAllScreens();
             document.getElementById('booth-screen').classList.remove('hidden');
         }
+
+        function showCanvasGuide() {
+            document.getElementById('canvas-guide-modal').classList.add('show');
+        }
+        function closeCanvasGuide(e) {
+            if (e.target.id === 'canvas-guide-modal') {
+                document.getElementById('canvas-guide-modal').classList.remove('show');
+            }
+        }
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') document.getElementById('canvas-guide-modal').classList.remove('show');
+        });
 
         function showToast(message) {
             const toast = document.getElementById('toast');
