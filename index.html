@@ -1394,7 +1394,7 @@
         window.addEventListener('mousedown', jumpAction);
         window.addEventListener('touchstart', jumpAction, { passive: false });
 
-        const CENTER_AUTOMATION_LINE_HEIGHT = 56; /* 업무 자동화 메시지 세로 간격(px) - 겹침 방지 */
+        const CENTER_AUTOMATION_LINE_HEIGHT = 28; /* 업무 자동화 메시지 세로 간격(px) - 겹침 방지 */
         function spawnTextEffect(text, x, y, color = '#00f2fe', align = 'left', size = 20, life = 90, stackGroup = null) {
             /* stackGroup: 같은 그룹 메시지가 있으면 바로 아래에 쌓음 (겹침 방지) */
             if (stackGroup) {
@@ -1930,8 +1930,8 @@
                 }
             }
 
-            /* 2단계: 격파된 장애물 일괄 처리 - 가운데 메시지는 0, 56, 112... 순으로 Y 오프셋 (겹침 방지) */
-            const CENTER_LINE = 56;
+            /* 2단계: 격파된 장애물 일괄 처리 - 가운데 메시지는 0, 28, 56... 순으로 Y 오프셋 (겹침 방지) */
+            const CENTER_LINE = 28;
             const baseY = canvas.height / 2;
             const baseX = canvas.width / 2;
             toDestroy.forEach((entry, idx) => {
