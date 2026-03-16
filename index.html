@@ -62,12 +62,9 @@
         }
 
         body::before {
-            background:
-                linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
-            background-size: 42px 42px;
-            mask-image: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.15));
-            opacity: 0.35;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+            /* 그리드 패턴 제거로 렌더링 성능 향상 */
+            opacity: 0.15;
         }
 
         body::after {
@@ -77,12 +74,12 @@
         .ambient-orb {
             position: fixed;
             border-radius: 50%;
-            filter: blur(32px);
-            opacity: 0.5;
+            filter: blur(16px); /* 블러 효과 감소 */
+            opacity: 0.3; /* 투명도 증가로 렌더링 부담 감소 */
             pointer-events: none;
             z-index: 0;
             mix-blend-mode: screen;
-            animation: floatOrb 9s ease-in-out infinite;
+            animation: floatOrb 12s ease-in-out infinite; /* 애니메이션 속도 감소 */
         }
 
         .ambient-orb.orb-a {
@@ -145,8 +142,8 @@
                 var(--panel);
             border: 1px solid var(--line);
             box-shadow: var(--glow);
-            backdrop-filter: blur(22px) saturate(130%);
-            -webkit-backdrop-filter: blur(22px) saturate(130%);
+            backdrop-filter: blur(12px) saturate(110%);
+            -webkit-backdrop-filter: blur(12px) saturate(110%);
             overflow: hidden;
         }
 
@@ -485,8 +482,8 @@
             border: 1px solid var(--line);
             background: rgba(8, 13, 26, 0.6);
             box-shadow: var(--glow);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
         }
 
         #game-screen .screen-shell::before {
@@ -508,8 +505,8 @@
             background: rgba(8, 13, 26, 0.54);
             border: 1px solid rgba(255,255,255,0.12);
             box-shadow: 0 20px 48px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.05);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
 
         .hud-top {
@@ -578,8 +575,8 @@
             font-size: 0.88rem;
             line-height: 1.5;
             box-shadow: 0 18px 48px rgba(0,0,0,0.28);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
         }
 
         canvas {
@@ -740,6 +737,19 @@
             border-radius: 12px;
         }
 
+        .guide-video-inner {
+            max-width: 90vw;
+            max-height: 90vh;
+        }
+        .guide-video-inner iframe,
+        .guide-video-inner video {
+            display: block;
+            width: min(853px, 90vw);
+            height: min(480px, 50.6vw);
+            border-radius: 12px;
+            border: none;
+        }
+
         .booth-container {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -802,7 +812,7 @@
         }
 
         .prompt-wrap {
-            flex: 1;
+            flex: 0 0 auto;
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -816,9 +826,10 @@
         }
 
         .prompt-box {
-            flex: 1;
-            min-height: 128px;
-            max-height: 320px;
+            flex: 0 0 auto;
+            height: 220px;
+            min-height: 220px;
+            max-height: 220px;
             padding: 18px 18px 20px;
             border-radius: 22px;
             background: rgba(3, 8, 20, 0.58);
@@ -853,59 +864,34 @@
             background: rgba(255,255,255,0.22);
         }
 
-        /* Gemini 카드 전체 영역 스크롤 (빨간색 직사각형 영역) */
+        /* Gemini 카드: 수노 AI와 동일한 높이와 여백 */
         .booth-card--gemini {
-            overflow: hidden;
             display: flex;
             flex-direction: column;
-            height: min(75vh, 580px);
         }
 
         .booth-card--gemini .card-scroll-area {
-            flex: 1;
-            min-height: 0;
-            height: 0;
             display: flex;
             flex-direction: column;
             gap: 16px;
-            overflow-y: scroll;
-            overflow-x: hidden;
-            padding-right: 8px;
-            overscroll-behavior-y: contain;
-            -webkit-overflow-scrolling: touch;
+            flex: 1;
+            overflow: visible;
         }
 
-        .booth-card--gemini .card-scroll-area::-webkit-scrollbar {
-            width: 12px;
-        }
-
-        .booth-card--gemini .card-scroll-area::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.1);
-            border-radius: 999px;
-            margin: 4px 0;
-        }
-
-        .booth-card--gemini .card-scroll-area::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.35);
-            border-radius: 999px;
-            border: 2px solid transparent;
-            background-clip: padding-box;
-        }
-
-        .booth-card--gemini .card-scroll-area::-webkit-scrollbar-thumb:hover {
-            background: rgba(255,255,255,0.5);
-        }
 
         .btn-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
-            margin-top: auto;
+            margin-top: 16px;
         }
 
         .booth-footer {
             display: flex;
             justify-content: center;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
             margin-top: 6px;
         }
 
@@ -1124,6 +1110,7 @@
             </div>
             <div class="result-actions">
                 <button class="btn btn-outline" onclick="startGame()">게임 다시하기 🔄</button>
+                <button id="result-guide-video-btn" class="btn btn-outline" onclick="showGuideVideo()">가이드라인 영상 보기 🎬</button>
                 <button class="btn btn-primary" onclick="showBooth()">온라인 체험부스 입장 🚀</button>
             </div>
         </div>
@@ -1208,6 +1195,7 @@
 
             <div class="booth-footer">
                 <button class="btn btn-outline" onclick="startGame()">게임 다시하기 🔄</button>
+                <button class="btn btn-outline" onclick="showGuideVideo()">가이드라인 영상 보기 🎬</button>
             </div>
         </div>
     </div>
@@ -1221,7 +1209,28 @@
         </div>
     </div>
 
+    <!-- 가이드라인 영상 모달 (링크 또는 임베드 영상 표시) -->
+    <div id="guide-video-modal" class="canvas-guide-modal" onclick="closeGuideVideo(event)">
+        <div class="modal-inner guide-video-inner" onclick="event.stopPropagation()">
+            <div id="guide-video-content"></div>
+            <button class="btn btn-outline" style="margin-top:16px; width:100%;" onclick="closeGuideVideo()">닫기</button>
+        </div>
+    </div>
+
     <script>
+        /**
+         * 가이드라인 영상 설정
+         * - linkUrl: 외부 링크 (클릭 시 새 탭에서 열림)
+         * - embedUrl: YouTube/Vimeo 임베드 URL (예: https://www.youtube.com/embed/VIDEO_ID) → 모달에 영상 직접 표시
+         * - videoSrc: 직접 호스팅 mp4/webm URL → <video> 태그로 재생
+         * embedUrl 또는 videoSrc가 있으면 링크 대신 화면에 영상 표시 (NOT LINK)
+         */
+        const GUIDE_VIDEO_CONFIG = {
+            linkUrl: '',      // 예: 'https://youtube.com/watch?v=xxx'
+            embedUrl: '',     // 예: 'https://www.youtube.com/embed/VIDEO_ID'
+            videoSrc: ''     // 예: '/assets/guide.mp4'
+        };
+
         function hideAllScreens() {
             document.getElementById('intro-screen').classList.add('hidden');
             document.getElementById('game-screen').classList.add('hidden');
@@ -1238,19 +1247,6 @@
                     });
                 });
             });
-            // Gemini 카드 스크롤: 마우스가 카드 위에 있을 때 휠 스크롤이 카드 내부에서 작동하도록
-            const cardScrollArea = document.querySelector('.booth-card--gemini .card-scroll-area');
-            if (cardScrollArea) {
-                cardScrollArea.addEventListener('wheel', (e) => {
-                    const { scrollTop, scrollHeight, clientHeight } = cardScrollArea;
-                    const atTop = scrollTop <= 0;
-                    const atBottom = scrollTop + clientHeight >= scrollHeight - 1;
-                    if ((e.deltaY < 0 && !atTop) || (e.deltaY > 0 && !atBottom)) {
-                        e.stopPropagation();
-                    }
-                }, { passive: false });
-                cardScrollArea.setAttribute('tabindex', '0');
-            }
         });
 
         function roundRectPath(ctx, x, y, width, height, radius) {
@@ -1267,6 +1263,20 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const gameShell = document.querySelector('#game-screen .screen-shell');
+
+        // 성능 최적화 변수들
+        let frameCount = 0;
+        let currentTime = 0;
+        let sinCache = {}, cosCache = {};
+        const MAX_PARTICLES = 30;        // 파티클 개수 제한 (기존 무제한 → 30개)
+        const MAX_TEXT_EFFECTS = 8;      // 텍스트 이펙트 개수 제한 (기존 15 → 8개)
+        const MAX_JUMP_EFFECTS = 6;      // 점프 이펙트 개수 제한
+        const MAX_STARS = 30;           // 별 개수 감소 (기존 50 → 30개)
+        
+        // 그라디언트 캐싱 (무적 모드 렌더링 최적화)
+        let cachedAuraGradient = null;
+        let cachedFlameGradients = { outer: null, inner: null };
+        let lastGradientUpdate = 0;
 
         let gameLoop, gameActive = false, score = 0, speedMultiplier = 1, currentLevel = 0;
         let player, obstacles = [], items = [], textEffects = [], stars = [], jumpEffects = [], breakParticles = [], documentParticles = [];
@@ -1301,6 +1311,30 @@
             "시재표 자동 업데이트!",
             "계약서 Risk 및 Action Plan 자동 산출!"
         ];
+
+        // 성능 최적화 함수들
+        function getCachedSin(key, value) {
+            if (sinCache[key] === undefined) sinCache[key] = Math.sin(value);
+            return sinCache[key];
+        }
+        
+        function getCachedCos(key, value) {
+            if (cosCache[key] === undefined) cosCache[key] = Math.cos(value);
+            return cosCache[key];
+        }
+
+        function clearCaches() {
+            if (frameCount % 60 === 0) {  // 1초마다 캐시 초기화
+                sinCache = {};
+                cosCache = {};
+            }
+        }
+
+        function limitArraySize(arr, maxSize) {
+            if (arr.length > maxSize) {
+                arr.splice(0, arr.length - maxSize);
+            }
+        }
 
         function resizeCanvas() {
             if (!gameShell) return;
@@ -1340,7 +1374,7 @@
             obstacleCooldown = 0;
             aiItemCooldown = 300;
 
-            stars = Array.from({ length: 50 }, () => ({
+            stars = Array.from({ length: MAX_STARS }, () => ({
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
                 size: Math.random() * 2,
@@ -1369,9 +1403,11 @@
 
         function jumpAction(e) {
             if (!gameActive) return;
-            if (e && e.type === 'keydown' && e.code === 'Space') e.preventDefault();
-            if (e && e.type === 'keydown' && e.code !== 'Space' && e.code !== 'ArrowUp') return;
-            if (player.isInvincible) return;
+            if (e && e.type === 'keydown') {
+                if (e.code === 'Space') e.preventDefault();
+                else if (e.code !== 'ArrowUp') return;
+            }
+            if (player && player.isInvincible) return;
 
             const cx = player.x + player.width / 2;
             const cy = player.y + player.height;
@@ -1391,8 +1427,8 @@
         }
 
         window.addEventListener('keydown', jumpAction, { passive: false });
-        window.addEventListener('mousedown', jumpAction);
-        window.addEventListener('touchstart', jumpAction, { passive: false });
+        window.addEventListener('mousedown', jumpAction, { passive: true }); /* 마우스 이벤트 최적화 */
+        window.addEventListener('touchstart', jumpAction, { passive: true }); /* 터치 이벤트 최적화 */
 
         const CENTER_AUTOMATION_LINE_HEIGHT = 28; /* 업무 자동화 메시지 세로 간격(px) - 겹침 방지 */
         function spawnTextEffect(text, x, y, color = '#00f2fe', align = 'left', size = 20, life = 90, stackGroup = null) {
@@ -1401,13 +1437,13 @@
                 const stackedCount = textEffects.filter(te => te.stackGroup === stackGroup).length;
                 y = y + stackedCount * CENTER_AUTOMATION_LINE_HEIGHT;
             }
-            if (textEffects.length >= 15) textEffects.splice(0, 3); /* 겹칠 때 과부하 방지 */
+            limitArraySize(textEffects, MAX_TEXT_EFFECTS); /* 성능 최적화: 텍스트 이펙트 개수 제한 */
             textEffects.push({ text, x, y, life, maxLife: life, color, align, size, stackGroup });
         }
 
         /* 레벨업 시 오른쪽 상단 꼭짓점에서 문서 다발 흩뿌리기 */
         function spawnDocumentScatter() {
-            const count = documentParticles.length > 20 ? 4 : 8 + Math.floor(Math.random() * 4); /* 겹칠 때 과부하 방지 */
+            const count = Math.min(6, documentParticles.length > 15 ? 3 : 6); /* 성능 최적화: 개수 제한 */
             for (let i = 0; i < count; i++) {
                 const w = 18 + Math.random() * 28;
                 const h = 24 + Math.random() * 36;
@@ -1430,8 +1466,8 @@
 
         /* 장애물 격파 전용 파티클 - 파쇄/폭발 느낌 (디자인: 노란-주황 톤, 파편 비산) */
         function spawnBreakParticles(x, y) {
-            const colors = ['#ffeb3b', '#ffca66', '#ff9800', '#ff6b35', '#fff8e1', '#ffecb3'];
-            const maxParticles = breakParticles.length > 50 ? 6 : 14; /* 겹칠 때 과부하 방지 */
+            const colors = ['#ffeb3b', '#ffca66', '#ff9800', '#ff6b35'];  // 배열 크기 감소
+            const maxParticles = Math.min(8, breakParticles.length > MAX_PARTICLES ? 4 : 8); /* 성능 최적화 */
             for (let i = 0; i < maxParticles; i++) {
                 const angle = Math.random() * Math.PI * 2;
                 const speed = 5 + Math.random() * 10;
@@ -1496,9 +1532,9 @@
 
         function drawPlayer() {
             const cx = player.x + player.width / 2;
-            const time = Date.now();
-            const swing = (player.jumps === 0 && !player.isInvincible) ? Math.sin(time / 100) : 0;
-            const hoverOffset = player.isInvincible ? Math.sin(time / 150) * 8 : 0;
+            const time = currentTime; // 캐시된 시간 사용
+            const swing = (player.jumps === 0 && !player.isInvincible) ? getCachedSin('swing' + Math.floor(time / 100), time / 100) : 0;
+            const hoverOffset = 0; // 무적 모드 hover 제거 (player.y에서 이미 부드러운 움직임 처리)
 
             ctx.save();
             ctx.translate(cx, player.y + 30 + hoverOffset);
@@ -1509,7 +1545,7 @@
 
             if (player.isInvincible) {
                 // 불꽃 잘림 방지: transform 이미지일 때 먼저 padLeft 계산 후 전체(오라 포함)에 적용
-                let padLeft = 0, fLenVal = 110 + Math.sin(time / 80) * 25, fBaseXVal = 0, fBaseYVal = 0, drawXVal = 0, drawYVal = 0, imgWVal = 0, imgHVal = 0;
+                let padLeft = 0, fLenVal = 110 + getCachedSin('flame' + Math.floor(time / 80), time / 80) * 25, fBaseXVal = 0, fBaseYVal = 0, drawXVal = 0, drawYVal = 0, imgWVal = 0, imgHVal = 0;
                 if (playerTransformImg && playerTransformImg.complete) {
                     const targetH = player.height * 2.2;
                     const aspectRatio = playerTransformImg.naturalWidth / playerTransformImg.naturalHeight;
@@ -1520,71 +1556,61 @@
                     fBaseXVal = drawXVal + imgWVal * 0.08;
                     fBaseYVal = drawYVal + imgHVal * 0.65;
                     const flameTipX = cx + (fBaseXVal - fLenVal);
-                    if (flameTipX < 0) padLeft = -flameTipX;  // 불꽃 끝을 x=0으로 맞추어 전체 노출
+                    if (flameTipX < 0) padLeft = -flameTipX;
                     if (padLeft > 0) ctx.translate(padLeft, 0);
                 }
 
+                // 오라 (단순화 - 반경 고정)
+                const auraRadius = 65;
+                if (!cachedAuraGradient || time - lastGradientUpdate > 500) {
+                    cachedAuraGradient = ctx.createRadialGradient(0, 0, 10, 0, 0, auraRadius);
+                    cachedAuraGradient.addColorStop(0, 'rgba(255, 215, 0, 0.6)');
+                    cachedAuraGradient.addColorStop(0.5, 'rgba(255, 140, 0, 0.3)');
+                    cachedAuraGradient.addColorStop(1, 'rgba(255, 0, 0, 0)');
+                    lastGradientUpdate = time;
+                }
                 ctx.beginPath();
-                const auraRadius = 60 + Math.sin(time / 80) * 10;
                 ctx.arc(0, 0, auraRadius, 0, Math.PI * 2);
-                const gradient = ctx.createRadialGradient(0, 0, 10, 0, 0, auraRadius);
-                gradient.addColorStop(0, 'rgba(255, 215, 0, 0.7)');
-                gradient.addColorStop(0.5, 'rgba(255, 140, 0, 0.4)');
-                gradient.addColorStop(1, 'rgba(255, 0, 0, 0)');
-                ctx.fillStyle = gradient;
+                ctx.fillStyle = cachedAuraGradient;
                 ctx.fill();
+
                 if (playerTransformImg && playerTransformImg.complete) {
                     const drawX = drawXVal, drawY = drawYVal, imgW = imgWVal, imgH = imgHVal;
                     const fBaseX = fBaseXVal, fBaseY = fBaseYVal;
                     let fLen = fLenVal;
                     
                     ctx.save();
-                    const fW   = 28 + Math.sin(time / 55) * 8;
+                    const fW = 28 + getCachedSin('flameW' + Math.floor(time / 55), time / 55) * 8;
 
-                    // 외부 불꽃 (주황)
-                    const fg1 = ctx.createRadialGradient(fBaseX, fBaseY, 3, fBaseX - fLen * 0.45, fBaseY, fLen);
-                    fg1.addColorStop(0, 'rgba(255, 90, 0, 1)');
-                    fg1.addColorStop(0.6, 'rgba(255, 50, 0, 0.6)');
-                    fg1.addColorStop(1,   'rgba(255, 30, 0, 0)');
-                    ctx.fillStyle = fg1;
+                    // 불꽃 레이어 통합 (3개 → 2개로 단순화)
+                    // 외부 불꽃 (주황-빨강)
+                    ctx.fillStyle = 'rgba(255, 80, 0, 0.85)';
                     ctx.beginPath();
                     ctx.moveTo(fBaseX, fBaseY - fW);
-                    ctx.quadraticCurveTo(fBaseX - fLen * 0.5, fBaseY, fBaseX - fLen, fBaseY);
-                    ctx.quadraticCurveTo(fBaseX - fLen * 0.5, fBaseY, fBaseX, fBaseY + fW);
+                    ctx.lineTo(fBaseX - fLen * 0.9, fBaseY);
+                    ctx.lineTo(fBaseX, fBaseY + fW);
                     ctx.closePath();
                     ctx.fill();
 
-                    // 중간 불꽃 (노랑)
-                    const fg2 = ctx.createRadialGradient(fBaseX, fBaseY, 1, fBaseX - fLen * 0.38, fBaseY, fLen * 0.7);
-                    fg2.addColorStop(0, 'rgba(255, 220, 40, 1)');
-                    fg2.addColorStop(1, 'rgba(255, 140, 0, 0)');
-                    ctx.fillStyle = fg2;
+                    // 내부 코어 (밝은 노랑)
+                    ctx.fillStyle = 'rgba(255, 235, 100, 0.95)';
                     ctx.beginPath();
-                    ctx.moveTo(fBaseX, fBaseY - fW * 0.55);
-                    ctx.quadraticCurveTo(fBaseX - fLen * 0.4, fBaseY, fBaseX - fLen * 0.7, fBaseY);
-                    ctx.quadraticCurveTo(fBaseX - fLen * 0.4, fBaseY, fBaseX, fBaseY + fW * 0.55);
-                    ctx.closePath();
-                    ctx.fill();
-
-                    // 코어 (밝은 흰-노랑)
-                    ctx.fillStyle = 'rgba(255, 255, 200, 0.95)';
-                    ctx.beginPath();
-                    ctx.moveTo(fBaseX, fBaseY - fW * 0.28);
-                    ctx.quadraticCurveTo(fBaseX - fLen * 0.2, fBaseY, fBaseX - fLen * 0.36, fBaseY);
-                    ctx.quadraticCurveTo(fBaseX - fLen * 0.2, fBaseY, fBaseX, fBaseY + fW * 0.28);
+                    ctx.moveTo(fBaseX, fBaseY - fW * 0.4);
+                    ctx.lineTo(fBaseX - fLen * 0.5, fBaseY);
+                    ctx.lineTo(fBaseX, fBaseY + fW * 0.4);
                     ctx.closePath();
                     ctx.fill();
                     ctx.restore();
 
-                    // 2) 캐릭터 이미지 위에 그리기 (불꽃 위에 캐릭터)
                     ctx.drawImage(playerTransformImg, drawX, drawY, imgW, imgH);
                 } else {
+                    // 폴백 슈퍼맨 (단순화)
                     ctx.rotate(Math.PI / 2.2);
                     ctx.fillStyle = '#ff0844';
                     ctx.beginPath();
                     ctx.moveTo(-10, -15);
-                    ctx.lineTo(-35, 25 + Math.sin(time / 60) * 15);
-                    ctx.lineTo(-10, 45 + Math.cos(time / 60) * 15);
+                    ctx.lineTo(-35, 25 + getCachedSin('cape1' + Math.floor(time / 60), time / 60) * 15);
+                    ctx.lineTo(-10, 45 + getCachedCos('cape2' + Math.floor(time / 60), time / 60) * 15);
                     ctx.lineTo(10, -5);
                     ctx.fill();
                     ctx.lineWidth = 5;
@@ -1684,19 +1710,26 @@
         function update() {
             if (!gameActive) return;
 
+            frameCount++;
+            currentTime = Date.now(); // 한 번만 호출하여 재사용
+            clearCaches(); // 정기적으로 캐시 초기화
+
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-            stars.forEach(star => {
-                ctx.beginPath();
-                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-                ctx.fill();
-                star.x -= star.speed * speedMultiplier;
-                if (star.x < 0) {
-                    star.x = canvas.width;
-                    star.y = Math.random() * canvas.height;
-                }
-            });
+            // 별 렌더링 최적화 - 매 프레임이 아닌 2프레임마다 업데이트
+            if (frameCount % 2 === 0) {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                stars.forEach(star => {
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    star.x -= star.speed * speedMultiplier;
+                    if (star.x < 0) {
+                        star.x = canvas.width;
+                        star.y = Math.random() * canvas.height;
+                    }
+                });
+            }
 
             drawCityscape();
 
@@ -1716,6 +1749,8 @@
             ctx.stroke();
             ctx.shadowBlur = 0;
 
+            // 점프 이펙트 개수 제한 및 최적화
+            limitArraySize(jumpEffects, MAX_JUMP_EFFECTS);
             for (let i = jumpEffects.length - 1; i >= 0; i--) {
                 const eff = jumpEffects[i];
                 ctx.beginPath();
@@ -1732,6 +1767,7 @@
             }
 
             /* 장애물 격파 파티클 - 파쇄/폭발 효과 (서류 파쇄 느낌) */
+            limitArraySize(breakParticles, MAX_PARTICLES);
             for (let i = breakParticles.length - 1; i >= 0; i--) {
                 const p = breakParticles[i];
                 p.x += p.vx;
@@ -1747,8 +1783,7 @@
                 ctx.save();
                 ctx.globalAlpha = p.life;
                 ctx.fillStyle = p.color;
-                ctx.shadowBlur = 3;
-                ctx.shadowColor = p.color;
+                // shadowBlur 제거 (성능 향상)
                 const s = Math.max(1.5, p.size);
                 if (p.shape === 'rect') {
                     ctx.translate(p.x, p.y);
@@ -1763,6 +1798,7 @@
             }
 
             /* 레벨업 문서 다발 - 오른쪽에서 흩뿌려지는 효과 */
+            limitArraySize(documentParticles, MAX_PARTICLES);
             for (let i = documentParticles.length - 1; i >= 0; i--) {
                 const d = documentParticles[i];
                 d.x += d.vx;
@@ -1839,8 +1875,14 @@
 
             if (player.isInvincible) {
                 player.invincibleTimer--;
-                const targetY = canvas.height - 200;
-                player.y += (targetY - player.y) * 0.08;
+                // 부드러운 sin 파동으로 위아래 움직임 (자연스러운 비행 효과)
+                const baseY = canvas.height - 220;
+                const waveAmplitude = 25; // 파동 진폭
+                const waveSpeed = 0.03; // 파동 속도 (느릴수록 부드러움)
+                const targetY = baseY + Math.sin(frameCount * waveSpeed) * waveAmplitude;
+                
+                // 더 부드러운 easing (0.08 → 0.15)
+                player.y += (targetY - player.y) * 0.15;
                 player.vy = 0;
                 player.jumps = 0;
 
@@ -1963,8 +2005,8 @@
                 obstacleCooldown = 60;
             }
 
-            const itemTime = Date.now();
-            const pulse = Math.abs(Math.sin(itemTime / 200));
+            const itemTime = currentTime; // 캐시된 시간 사용
+            const pulse = Math.abs(getCachedSin('pulse' + Math.floor(itemTime / 200), itemTime / 200));
 
             for (let i = items.length - 1; i >= 0; i--) {
                 const item = items[i];
@@ -1973,13 +2015,12 @@
                 ctx.save();
                 const hoverY = item.y - (pulse * 8);
 
-                ctx.shadowBlur = 10 + pulse * 8; /* 경량화: 이전 20~40 → 10~18 */
+                ctx.shadowBlur = 12; /* 고정값으로 단순화 */
                 ctx.shadowColor = item.color;
 
                 const grad = ctx.createLinearGradient(item.x, hoverY, item.x, hoverY + item.height);
                 grad.addColorStop(0, '#ffffff');
-                grad.addColorStop(0.4, item.color);
-                grad.addColorStop(1, '#0f172a');
+                grad.addColorStop(1, item.color);
 
                 ctx.fillStyle = grad;
                 roundRectPath(ctx, item.x, hoverY, item.width, item.height, 20);
@@ -2002,10 +2043,11 @@
                 const radiusX = item.width / 2 + 8;
                 const radiusY = item.height / 2 + 8;
 
-                const p1x = item.x + item.width / 2 + Math.cos(orbitAngle) * radiusX;
-                const p1y = hoverY + item.height / 2 + Math.sin(orbitAngle) * radiusY;
-                const p2x = item.x + item.width / 2 + Math.cos(orbitAngle + Math.PI) * radiusX;
-                const p2y = hoverY + item.height / 2 + Math.sin(orbitAngle + Math.PI) * radiusY;
+                const orbitKey = 'orbit' + Math.floor(orbitAngle * 10);
+                const p1x = item.x + item.width / 2 + getCachedCos(orbitKey, orbitAngle) * radiusX;
+                const p1y = hoverY + item.height / 2 + getCachedSin(orbitKey, orbitAngle) * radiusY;
+                const p2x = item.x + item.width / 2 + getCachedCos(orbitKey + 'pi', orbitAngle + Math.PI) * radiusX;
+                const p2y = hoverY + item.height / 2 + getCachedSin(orbitKey + 'pi', orbitAngle + Math.PI) * radiusY;
 
                 ctx.beginPath();
                 ctx.arc(p1x, p1y, 4, 0, Math.PI * 2);
@@ -2034,6 +2076,7 @@
                 }
             }
 
+            limitArraySize(textEffects, MAX_TEXT_EFFECTS);
             for (let i = textEffects.length - 1; i >= 0; i--) {
                 const te = textEffects[i];
                 ctx.font = `bold ${te.size}px Pretendard`;
@@ -2050,7 +2093,9 @@
                 if (te.life <= 0) textEffects.splice(i, 1);
             }
 
-            gameLoop = requestAnimationFrame(update);
+            if (gameActive) { // 게임이 활성 상태일 때만 다음 프레임 요청
+                gameLoop = requestAnimationFrame(update);
+            }
         }
 
         function updateGauge() {
@@ -2086,6 +2131,8 @@
 
             setTimeout(() => {
                 hideAllScreens();
+                const guideBtn = document.getElementById('result-guide-video-btn');
+                if (guideBtn) guideBtn.style.display = isSuccess ? '' : 'none';
                 document.getElementById('result-screen').classList.remove('hidden');
             }, 500);
         }
@@ -2104,8 +2151,39 @@
             }
         }
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') document.getElementById('canvas-guide-modal').classList.remove('show');
+            if (e.key === 'Escape') {
+                document.getElementById('canvas-guide-modal').classList.remove('show');
+                document.getElementById('guide-video-modal').classList.remove('show');
+            }
         });
+
+        function showGuideVideo() {
+            const { linkUrl, embedUrl, videoSrc } = GUIDE_VIDEO_CONFIG;
+            const content = document.getElementById('guide-video-content');
+            content.innerHTML = '';
+
+            if (embedUrl) {
+                content.innerHTML = '<iframe src="' + embedUrl + '" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>';
+                document.getElementById('guide-video-modal').classList.add('show');
+            } else if (videoSrc) {
+                content.innerHTML = '<video src="' + videoSrc + '" controls autoplay></video>';
+                document.getElementById('guide-video-modal').classList.add('show');
+            } else if (linkUrl) {
+                window.open(linkUrl, '_blank', 'noopener,noreferrer');
+            } else {
+                showToast('가이드 영상 링크를 곧 추가할 예정입니다.');
+            }
+        }
+        function closeGuideVideo(e) {
+            if (!e || e.target.id === 'guide-video-modal') {
+                const modal = document.getElementById('guide-video-modal');
+                modal.classList.remove('show');
+                const content = document.getElementById('guide-video-content');
+                const video = content.querySelector('video');
+                if (video) video.pause();
+                content.innerHTML = '';
+            }
+        }
 
         function showToast(message) {
             const toast = document.getElementById('toast');
