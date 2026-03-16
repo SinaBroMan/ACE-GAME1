@@ -120,7 +120,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: calc(var(--safe-top) + 12px) 20px calc(var(--safe-bottom) + 12px);
+            padding: calc(var(--safe-top) + 8px) 16px calc(var(--safe-bottom) + 8px);
             transition: opacity 0.45s ease, visibility 0.45s ease, transform 0.45s ease;
         }
 
@@ -135,7 +135,7 @@
             position: relative;
             width: min(1180px, 100%);
             max-height: 100%;
-            padding: clamp(26px, 3vw, 42px);
+            padding: clamp(18px, 2vw, 28px);
             border-radius: var(--radius-xl);
             background:
                 linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.01)),
@@ -170,13 +170,13 @@
         .kicker {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 9px 14px;
+            gap: 6px;
+            padding: 6px 11px;
             border-radius: 999px;
             background: rgba(255,255,255,0.08);
             border: 1px solid rgba(255,255,255,0.12);
             color: var(--primary);
-            font-size: 0.92rem;
+            font-size: 0.8rem;
             font-weight: 700;
             letter-spacing: 0.03em;
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
@@ -372,11 +372,11 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            min-height: 56px;
-            padding: 15px 26px;
+            gap: 8px;
+            min-height: 42px;
+            padding: 10px 18px;
             border-radius: 999px;
-            font-size: 1rem;
+            font-size: 0.85rem;
             font-weight: 800;
             letter-spacing: -0.02em;
             transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease, background 0.22s ease;
@@ -589,48 +589,51 @@
             width: min(1180px, 100%);
             display: flex;
             flex-direction: column;
-            gap: 24px;
+            gap: 16px;
+            max-height: 100%;
+            overflow: hidden;
         }
 
         .booth-head {
             display: flex;
             align-items: end;
             justify-content: space-between;
-            gap: 20px;
+            gap: 12px;
             flex-wrap: wrap;
-            padding-top: 8px;
+            padding-top: 0px;
         }
 
         .booth-head .kicker {
-            margin-top: -6px;
-            margin-bottom: 12px;
+            margin-top: -4px;
+            margin-bottom: 6px;
         }
 
         .booth-title {
-            font-size: clamp(2rem, 4.4vw, 3.5rem);
+            font-size: clamp(1.5rem, 3.2vw, 2.2rem);
             line-height: 1.05;
             letter-spacing: -0.04em;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
         }
 
         .booth-desc {
             max-width: 700px;
             color: var(--muted);
-            line-height: 1.66;
-            font-size: 1.05rem;
+            line-height: 1.5;
+            font-size: 0.9rem;
             word-break: keep-all;
         }
 
         .booth-notice {
-            margin: 2px auto 0;
+            margin: 0px auto 0;
             max-width: 900px;
             text-align: center;
-            padding: 16px 22px;
-            border-radius: 20px;
+            padding: 10px 16px;
+            border-radius: 16px;
             background: linear-gradient(180deg, rgba(125, 231, 255, 0.08), rgba(255,255,255,0.04));
             border: 1px solid rgba(125, 231, 255, 0.16);
             color: rgba(248, 251, 255, 0.9);
-            line-height: 1.64;
+            line-height: 1.5;
+            font-size: 0.85rem;
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 16px 36px rgba(0,0,0,0.18);
         }
 
@@ -753,7 +756,7 @@
         .booth-container {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 22px;
+            gap: 14px;
         }
 
         .booth-card {
@@ -761,9 +764,9 @@
             height: 100%;
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            padding: 24px;
-            border-radius: 28px;
+            gap: 10px;
+            padding: 16px;
+            border-radius: 20px;
             background:
                 linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.025)),
                 rgba(10, 16, 34, 0.58);
@@ -782,28 +785,28 @@
             display: flex;
             align-items: start;
             justify-content: space-between;
-            gap: 16px;
+            gap: 10px;
         }
 
         .card-title {
-            font-size: 1.45rem;
+            font-size: 1.15rem;
             line-height: 1.16;
             letter-spacing: -0.03em;
         }
 
         .card-sub {
             color: var(--muted);
-            line-height: 1.62;
-            font-size: 0.98rem;
+            line-height: 1.5;
+            font-size: 0.85rem;
             word-break: keep-all;
         }
 
         .tool-tag {
             display: inline-flex;
             align-items: center;
-            padding: 8px 12px;
+            padding: 5px 10px;
             border-radius: 999px;
-            font-size: 0.82rem;
+            font-size: 0.7rem;
             font-weight: 800;
             white-space: nowrap;
             background: rgba(125, 231, 255, 0.1);
@@ -815,11 +818,11 @@
             flex: 0 0 auto;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 6px;
         }
 
         .prompt-label {
-            font-size: 0.82rem;
+            font-size: 0.7rem;
             font-weight: 800;
             letter-spacing: 0.06em;
             color: rgba(255,255,255,0.62);
@@ -827,17 +830,17 @@
 
         .prompt-box {
             flex: 0 0 auto;
-            height: 220px;
-            min-height: 220px;
-            max-height: 220px;
-            padding: 18px 18px 20px;
-            border-radius: 22px;
+            height: 140px;
+            min-height: 140px;
+            max-height: 140px;
+            padding: 12px 14px;
+            border-radius: 16px;
             background: rgba(3, 8, 20, 0.58);
             border: 1px solid rgba(255,255,255,0.07);
             color: #c6d4ff;
             font-family: 'Consolas', 'SFMono-Regular', Menlo, monospace;
-            font-size: 0.94rem;
-            line-height: 1.7;
+            font-size: 0.75rem;
+            line-height: 1.5;
             word-break: keep-all;
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
             overflow-y: auto;
@@ -873,7 +876,7 @@
         .booth-card--gemini .card-scroll-area {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 10px;
             flex: 1;
             overflow: visible;
         }
@@ -882,17 +885,17 @@
         .btn-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 16px;
+            gap: 8px;
+            margin-top: 8px;
         }
 
         .booth-footer {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 14px;
+            gap: 10px;
             flex-wrap: wrap;
-            margin-top: 6px;
+            margin-top: 0px;
         }
 
         .toast {
@@ -1117,7 +1120,7 @@
     </div>
 
     <div id="booth-screen" class="screen hidden">
-        <div class="screen-shell booth-shell scroll-shell">
+        <div class="screen-shell booth-shell">
             <div class="booth-head">
                 <div>
                     <div class="kicker">PLAYDAY AI BOOTH</div>
@@ -1149,9 +1152,9 @@
                             </div>
                         </div>
                         <div class="prompt-wrap">
-                            <div style="text-align: right; color: var(--muted); font-size: 0.8rem; margin-bottom: 8px;">( ※ 구글 로그인 필요)</div>
+                            <div style="text-align: right; color: var(--muted); font-size: 0.7rem; margin-bottom: 4px;">( ※ 구글 로그인 필요)</div>
                             <div class="prompt-box" id="prompt1">
-                                <div class="prompt-label" style="margin-bottom: 12px;">TRY THIS PROMPT</div>
+                                <div class="prompt-label" style="margin-bottom: 8px;">TRY THIS PROMPT</div>
                                 단일 HTML(Tailwind CSS, Chart.js)로 브라우저에서 바로 작동하는 모던한 '건설 현장 관리 대시보드'를 만들어주세요.<br><br>
                                 화면에는 KPI 카드 4개(공정률, 무재해, 인원, 예산), 차트 2개(주간 공정, 직종별 인원), 안전 체크리스트, 실시간 이슈 테이블이 모두 들어가야 합니다.<br><br>
                                 반응형 디자인을 적용하고, 가상의 더미 데이터와 JS 인터랙션(체크박스, 차트 렌더링)을 포함해 완벽한 코드로 작성해 주세요.</div>
@@ -1175,9 +1178,9 @@
                         신나는 음악과 함께 남은 업무도 더 즐겁게 클리어해보세요.
                     </p>
                     <div class="prompt-wrap">
-                        <div style="text-align: right; color: var(--muted); font-size: 0.8rem; margin-bottom: 8px;">( ※ 로그인 필요)</div>
+                        <div style="text-align: right; color: var(--muted); font-size: 0.7rem; margin-bottom: 4px;">( ※ 로그인 필요)</div>
                         <div class="prompt-box" id="prompt2">
-                            <div class="prompt-label" style="margin-bottom: 12px;">TRY THIS PROMPT</div>
+                            <div class="prompt-label" style="margin-bottom: 8px;">TRY THIS PROMPT</div>
                             산더미 같은 서류 작업도 리듬 타며 신나게 해치울 수 있는 경쾌한 K-Pop 댄스곡을 만들어줘! 가사에는 '폭풍 집중력', '완벽한 결과물', '우린 해낼 수 있어', '오늘도 멋지게 클리어' 같은 긍정적이고 에너지 넘치는 단어들을 넣어줘.
                         </div>
                     </div>
