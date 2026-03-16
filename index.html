@@ -1226,7 +1226,7 @@
          * embedUrl 또는 videoSrc가 있으면 링크 대신 화면에 영상 표시 (NOT LINK)
          */
         const GUIDE_VIDEO_CONFIG = {
-            linkUrl: '',      // 예: 'https://youtube.com/watch?v=xxx'
+            linkUrl: 'https://youtu.be/MOna7RKmMtQ',      // YouTube 가이드 영상 링크
             embedUrl: '',     // 예: 'https://www.youtube.com/embed/VIDEO_ID'
             videoSrc: ''     // 예: '/assets/guide.mp4'
         };
@@ -1295,9 +1295,9 @@
         })();
 
         const itemTypes = [
-            { name: 'Gemini', color: '#00f2fe' },
-            { name: 'Copilot', color: '#34d399' },
-            { name: 'HAI', color: '#ff758c' }
+            { name: 'Gemini', color: '#00f2fe', colors: ['#ff5757', '#ff9a44', '#ffd93d', '#6bcf7f', '#0066ff', '#9b72ff'] },
+            { name: 'Copilot', color: '#4facfe', colors: ['#4facfe', '#5dd39e', '#feca57', '#ff9ff3'] },
+            { name: 'HAI', color: '#1e88a8', colors: ['#1e88a8', '#2aa5c8', '#36c2e8'] }
         ];
 
         /* 장애물 격파 시 장애물 위치에 표시 (원래 코드) */
@@ -1311,6 +1311,50 @@
             "시재표 자동 업데이트!",
             "계약서 Risk 및 Action Plan 자동 산출!"
         ];
+
+        /* 레벨별 배경 설정 - 하늘 색상, 해/달 위치, 건물 색상, 창문 불빛 */
+        const LEVEL_BACKGROUNDS = {
+            0: { // 레벨 1 - 한낮
+                sunPos: { x: 0.85, y: 0.10 },
+                sunColor: '#FFD700',
+                sunRadius: 45,
+                skyGradient: { start: '#87CEEB', end: '#4A90D9' },
+                buildingColor: { back: '#A0A0B0', front: '#8C8C9C' },
+                windowLight: 0.0
+            },
+            1: { // 레벨 2 - 오후
+                sunPos: { x: 0.60, y: 0.30 },
+                sunColor: '#FFA500',
+                sunRadius: 45,
+                skyGradient: { start: '#87CEEB', end: '#F4A460' },
+                buildingColor: { back: '#8888A0', front: '#74748C' },
+                windowLight: 0.3
+            },
+            2: { // 레벨 3 - 노을
+                sunPos: { x: 0.35, y: 0.55 },
+                sunColor: '#FF6347',
+                sunRadius: 45,
+                skyGradient: { start: '#FF7043', end: '#7B1FA2' },
+                buildingColor: { back: '#555577', front: '#444466' },
+                windowLight: 0.5
+            },
+            3: { // 레벨 4 - 해질녘
+                sunPos: null,   // ★ BUG FIX: 해 제거 (레벨 4에서는 해가 보이지 않아야 함)
+                sunColor: '#DC143C',
+                sunRadius: 45,
+                skyGradient: { start: '#4A148C', end: '#1A237E' },
+                buildingColor: { back: '#3D3D5C', front: '#32324A' },
+                windowLight: 0.8
+            },
+            4: { // 레벨 5 - 밤
+                moonPos: { x: 0.15, y: 0.12 },
+                moonColor: '#FFFACD',
+                moonRadius: 40,
+                skyGradient: { start: '#0D1B2A', end: '#000011' },
+                buildingColor: { back: '#2B2B44', front: '#20203A' },
+                windowLight: 0.95
+            }
+        };
 
         // 성능 최적화 함수들
         function getCachedSin(key, value) {
@@ -1333,6 +1377,128 @@
         function limitArraySize(arr, maxSize) {
             if (arr.length > maxSize) {
                 arr.splice(0, arr.length - maxSize);
+            }
+        }
+
+        // 색상 보간 함수 (hex 색상을 RGB로 변환 후 보간)
+        function interpolateColor(color1, color2, ratio) {
+            const hex1 = color1.replace('#', '');
+            const hex2 = color2.replace('#', '');
+            const r1 = parseInt(hex1.substring(0, 2), 16);
+            const g1 = parseInt(hex1.substring(2, 4), 16);
+            const b1 = parseInt(hex1.substring(4, 6), 16);
+            const r2 = parseInt(hex2.substring(0, 2), 16);
+            const g2 = parseInt(hex2.substring(2, 4), 16);
+            const b2 = parseInt(hex2.substring(4, 6), 16);
+            const r = Math.round(r1 + (r2 - r1) * ratio);
+            const g = Math.round(g1 + (g2 - g1) * ratio);
+            const b = Math.round(b1 + (b2 - b1) * ratio);
+            return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        }
+
+        // 배경 그리기 함수 (하늘, 해/달)
+        function drawBackground() {
+            const currentBg = LEVEL_BACKGROUNDS[currentLevel];
+            const nextLevel = Math.min(currentLevel + 1, 4);
+            const nextBg = LEVEL_BACKGROUNDS[nextLevel];
+            
+            // 레벨 진행도 (0~1 사이, 부드러운 전환용)
+            const levelProgress = currentLevel < 4 ? (score % 100) / 100 : 0;
+            
+            // 하늘 그라디언트 색상 보간
+            const skyStart = interpolateColor(currentBg.skyGradient.start, nextBg.skyGradient.start, levelProgress);
+            const skyEnd = interpolateColor(currentBg.skyGradient.end, nextBg.skyGradient.end, levelProgress);
+            
+            // 하늘 그리기
+            const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            skyGradient.addColorStop(0, skyStart);
+            skyGradient.addColorStop(1, skyEnd);
+            ctx.fillStyle = skyGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // ★ BUG FIX: 해 또는 달 그리기 (sunPos가 있을 때만)
+            if (currentLevel < 4 && currentBg.sunPos) {
+                let sunX, sunY;
+                let sunAlpha = 1.0;
+                
+                // ★ BUG FIX: 레벨별 해 위치 및 투명도 계산
+                if (currentLevel < 3 && nextBg && nextBg.sunPos) {
+                    // 레벨 0~2: 다음 레벨로 부드럽게 보간
+                    sunX = canvas.width * (currentBg.sunPos.x + (nextBg.sunPos.x - currentBg.sunPos.x) * levelProgress);
+                    sunY = canvas.height * (currentBg.sunPos.y + (nextBg.sunPos.y - currentBg.sunPos.y) * levelProgress);
+                } else if (currentLevel === 2 && nextBg && !nextBg.sunPos) {
+                    // ★ BUG FIX: 레벨 2→3 전환: 해가 서서히 화면 아래로 내려가며 사라짐
+                    sunX = canvas.width * currentBg.sunPos.x;
+                    sunY = canvas.height * (currentBg.sunPos.y + (1.15 - currentBg.sunPos.y) * levelProgress);
+                    sunAlpha = Math.max(0, 1.0 - levelProgress * 1.2);
+                } else {
+                    // 그 외: 고정된 위치 사용
+                    sunX = canvas.width * currentBg.sunPos.x;
+                    sunY = canvas.height * currentBg.sunPos.y;
+                }
+                
+                ctx.save();
+                ctx.globalAlpha = sunAlpha;
+                
+                // 해 색상 보간
+                const sunColor = (nextBg && nextBg.sunColor) 
+                    ? interpolateColor(currentBg.sunColor, nextBg.sunColor, levelProgress) 
+                    : currentBg.sunColor;
+                
+                // 해 후광 효과
+                const glowGradient = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, currentBg.sunRadius * 2.5);
+                glowGradient.addColorStop(0, sunColor + '80');
+                glowGradient.addColorStop(0.3, sunColor + '40');
+                glowGradient.addColorStop(1, 'transparent');
+                ctx.fillStyle = glowGradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // 해 원형 그리기
+                ctx.beginPath();
+                ctx.arc(sunX, sunY, currentBg.sunRadius, 0, Math.PI * 2);
+                ctx.fillStyle = sunColor;
+                ctx.fill();
+                
+                ctx.restore();
+                
+                // 해의 위치를 전역 변수에 저장 (필요시 다른 곳에서 참조)
+                if (!window.sunPosition) window.sunPosition = {};
+                window.sunPosition.x = sunX;
+                window.sunPosition.y = sunY;
+                window.sunPosition.radius = currentBg.sunRadius;
+                window.sunPosition.color = sunColor;
+            } else if (currentLevel >= 4 && currentBg.moonPos) {
+                // ★ FIX: 레벨 5 이상에서만 달 그리기 (moonPos가 있을 때만)
+                const moonX = canvas.width * currentBg.moonPos.x;
+                const moonY = canvas.height * currentBg.moonPos.y;
+                
+                // 달 후광
+                const moonGlowGradient = ctx.createRadialGradient(moonX, moonY, 0, moonX, moonY, currentBg.moonRadius * 2);
+                moonGlowGradient.addColorStop(0, currentBg.moonColor + '60');
+                moonGlowGradient.addColorStop(0.5, currentBg.moonColor + '20');
+                moonGlowGradient.addColorStop(1, 'transparent');
+                ctx.fillStyle = moonGlowGradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // 달
+                ctx.beginPath();
+                ctx.arc(moonX, moonY, currentBg.moonRadius, 0, Math.PI * 2);
+                ctx.fillStyle = currentBg.moonColor;
+                ctx.fill();
+                
+                // 달 표면 크레이터 (디테일)
+                ctx.globalAlpha = 0.15;
+                ctx.fillStyle = '#888888';
+                ctx.beginPath();
+                ctx.arc(moonX - 8, moonY - 6, 8, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(moonX + 10, moonY + 4, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(moonX - 2, moonY + 10, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
             }
         }
 
@@ -1378,7 +1544,9 @@
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
                 size: Math.random() * 2,
-                speed: Math.random() * 0.3 + 0.1
+                speed: Math.random() * 0.3 + 0.1,
+                brightness: Math.random(), // 초기 밝기 (0~1)
+                twinkleSpeed: 0.02 + Math.random() * 0.03 // 반짝임 속도
             }));
             generateBuildings(backBuildings, false);
             generateBuildings(frontBuildings, true);
@@ -1486,10 +1654,23 @@
         }
 
         function drawCityscape() {
+            const currentBg = LEVEL_BACKGROUNDS[currentLevel];
+            const nextLevel = Math.min(currentLevel + 1, 4);
+            const nextBg = LEVEL_BACKGROUNDS[nextLevel];
+            const levelProgress = currentLevel < 4 ? (score % 100) / 100 : 0;
+            
+            // 건물 색상 보간
+            const backBuildingColor = interpolateColor(currentBg.buildingColor.back, nextBg.buildingColor.back, levelProgress);
+            const frontBuildingColor = interpolateColor(currentBg.buildingColor.front, nextBg.buildingColor.front, levelProgress);
+            
+            // 창문 불빛 비율 보간
+            const windowLightRatio = currentBg.windowLight + (nextBg.windowLight - currentBg.windowLight) * levelProgress;
+            
+            // 뒷 건물 그리기
             for (let i = 0; i < backBuildings.length; i++) {
                 const b = backBuildings[i];
                 b.x -= 1.4 * speedMultiplier;
-                ctx.fillStyle = '#0a0f1d';
+                ctx.fillStyle = backBuildingColor;
                 ctx.fillRect(b.x, canvas.height - 50 - b.h, b.w, b.h);
             }
             if (backBuildings.length && backBuildings[0].x + backBuildings[0].w < 0) {
@@ -1503,16 +1684,32 @@
                 });
             }
 
+            // 앞 건물 그리기
             for (let i = 0; i < frontBuildings.length; i++) {
                 const b = frontBuildings[i];
                 b.x -= 3.9 * speedMultiplier;
-                ctx.fillStyle = '#1e293b';
+                ctx.fillStyle = frontBuildingColor;
                 ctx.fillRect(b.x, canvas.height - 50 - b.h, b.w, b.h);
 
-                ctx.fillStyle = 'rgba(255, 235, 59, 0.3)';
+                // 창문 그리기 (레벨에 따라 불빛 켜짐)
                 for (let wy = 20; wy < b.h - 20; wy += 45) {
                     for (let wx = 10; wx < b.w - 15; wx += 38) {
-                        if ((b.windowPattern + wx + wy) % 3 !== 0) {
+                        // windowPattern과 위치로 일관된 랜덤 패턴 생성
+                        const windowSeed = (b.windowPattern + wx + wy) / 100;
+                        const windowRandom = (Math.sin(windowSeed) + 1) / 2; // 0~1 사이 값
+                        
+                        // windowLightRatio보다 작은 랜덤값이면 불 켜짐
+                        if (windowRandom < windowLightRatio) {
+                            // 불이 켜진 창문 (밝은 노란색)
+                            ctx.fillStyle = 'rgba(255, 215, 0, 0.9)';
+                            ctx.fillRect(b.x + wx, canvas.height - 50 - b.h + wy, 10, 15);
+                        } else if (windowRandom < windowLightRatio + 0.15) {
+                            // 약간 밝은 창문 (전환 효과)
+                            ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
+                            ctx.fillRect(b.x + wx, canvas.height - 50 - b.h + wy, 10, 15);
+                        } else {
+                            // 불이 꺼진 창문 (어두운 색)
+                            ctx.fillStyle = 'rgba(50, 50, 70, 0.6)';
                             ctx.fillRect(b.x + wx, canvas.height - 50 - b.h + wy, 10, 15);
                         }
                     }
@@ -1527,6 +1724,27 @@
                     h: 100 + Math.random() * 150,
                     windowPattern: Math.floor(Math.random() * 10)
                 });
+            }
+            
+            // 레벨 4에서 해가 건물 뒤로 반쯤 가려지는 효과
+            if (currentLevel === 3 && window.sunPosition) {
+                const sunX = window.sunPosition.x;
+                const sunY = window.sunPosition.y;
+                const sunRadius = window.sunPosition.radius;
+                const sunColor = window.sunPosition.color;
+                
+                // 해의 하단부가 건물 뒤로 가려진 것처럼 보이도록
+                // 해의 상단 절반만 다시 그리기
+                ctx.save();
+                ctx.globalAlpha = 0.95;
+                ctx.beginPath();
+                ctx.arc(sunX, sunY, sunRadius, Math.PI, 0, false); // 상단 반원
+                ctx.lineTo(sunX + sunRadius, sunY);
+                ctx.lineTo(sunX - sunRadius, sunY);
+                ctx.closePath();
+                ctx.fillStyle = sunColor;
+                ctx.fill();
+                ctx.restore();
             }
         }
 
@@ -1722,13 +1940,41 @@
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // 별 렌더링 최적화 - 매 프레임이 아닌 2프레임마다 업데이트
+            // 1. 배경 그리기 (하늘, 해/달)
+            drawBackground();
+
+            // 2. 별 렌더링 (레벨 5에서 반짝임 효과 강화)
             if (frameCount % 2 === 0) {
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
                 stars.forEach(star => {
+                    // 반짝임 효과 업데이트
+                    star.brightness += star.twinkleSpeed;
+                    if (star.brightness > 1 || star.brightness < 0) {
+                        star.twinkleSpeed = -star.twinkleSpeed;
+                        star.brightness = Math.max(0, Math.min(1, star.brightness));
+                    }
+                    
+                    // 레벨 5일 때 별이 더 밝고 반짝임
+                    const isNight = currentLevel === 4;
+                    const baseAlpha = isNight ? 0.9 : 0.6;
+                    const twinkleAlpha = isNight ? star.brightness * 0.4 : star.brightness * 0.2;
+                    const finalAlpha = baseAlpha + twinkleAlpha;
+                    
+                    ctx.fillStyle = `rgba(255, 255, 255, ${finalAlpha})`;
+                    
+                    // 레벨 5에서 큰 별은 약간의 후광 효과
+                    if (isNight && star.size > 1.5) {
+                        ctx.shadowBlur = 8;
+                        ctx.shadowColor = 'rgba(255, 255, 255, 0.6)';
+                    }
+                    
                     ctx.beginPath();
                     ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
                     ctx.fill();
+                    
+                    if (isNight && star.size > 1.5) {
+                        ctx.shadowBlur = 0;
+                    }
+                    
                     star.x -= star.speed * speedMultiplier;
                     if (star.x < 0) {
                         star.x = canvas.width;
@@ -1737,6 +1983,7 @@
                 });
             }
 
+            // 3. 건물 및 창문 그리기
             drawCityscape();
 
             ctx.strokeStyle = '#4facfe';
@@ -2029,27 +2276,129 @@
 
                 ctx.save();
                 const hoverY = item.y - (pulse * 8);
+                const centerX = item.x + item.width / 2;
+                const centerY = hoverY + item.height / 2;
 
                 ctx.shadowBlur = 12; /* 고정값으로 단순화 */
                 ctx.shadowColor = item.color;
 
-                const grad = ctx.createLinearGradient(item.x, hoverY, item.x, hoverY + item.height);
-                grad.addColorStop(0, '#ffffff');
-                grad.addColorStop(1, item.color);
-
-                ctx.fillStyle = grad;
-                roundRectPath(ctx, item.x, hoverY, item.width, item.height, 20);
-                ctx.fill();
-
-                ctx.lineWidth = 2;
-                ctx.strokeStyle = '#ffffff';
-                ctx.stroke();
+                // 각 아이템별로 다른 디자인 적용
+                if (item.name === 'Gemini') {
+                    // GEMINI: 다이아몬드/별 모양 + 무지개 그라디언트 (진한 파란색)
+                    const size = 50;
+                    const grad = ctx.createLinearGradient(centerX - size, centerY, centerX + size, centerY);
+                    grad.addColorStop(0, '#ff5757');      // 빨강
+                    grad.addColorStop(0.2, '#ff9a44');    // 주황
+                    grad.addColorStop(0.4, '#ffd93d');    // 노랑
+                    grad.addColorStop(0.6, '#6bcf7f');    // 초록
+                    grad.addColorStop(0.8, '#0066ff');    // 진한 로얄블루
+                    grad.addColorStop(1, '#9b72ff');      // 보라
+                    
+                    ctx.fillStyle = grad;
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, centerY - size * 0.6);
+                    ctx.lineTo(centerX + size * 0.55, centerY);
+                    ctx.lineTo(centerX, centerY + size * 0.6);
+                    ctx.lineTo(centerX - size * 0.55, centerY);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+                    ctx.stroke();
+                } else if (item.name === 'Copilot') {
+                    // COPILOT: 육각형 리본 + 파란→초록→주황→핑크 그라디언트
+                    const size = 28;
+                    
+                    // 다채로운 그라디언트 (파란색→초록색→주황색→핑크색)
+                    const grad = ctx.createLinearGradient(centerX - size, centerY - size, centerX + size, centerY + size);
+                    grad.addColorStop(0, '#4facfe');    // 파란색
+                    grad.addColorStop(0.33, '#5dd39e');  // 초록색
+                    grad.addColorStop(0.66, '#feca57');  // 주황색
+                    grad.addColorStop(1, '#ff9ff3');     // 핑크색
+                    
+                    ctx.fillStyle = grad;
+                    
+                    // 육각형 그리기
+                    ctx.beginPath();
+                    for (let j = 0; j < 6; j++) {
+                        const angle = (Math.PI / 3) * j - Math.PI / 2;
+                        const x = centerX + Math.cos(angle) * size;
+                        const y = centerY + Math.sin(angle) * size;
+                        if (j === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    // 부드러운 외곽선
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+                    ctx.stroke();
+                    
+                    // 내부 하이라이트 (광택 효과)
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+                    ctx.beginPath();
+                    for (let j = 0; j < 6; j++) {
+                        const angle = (Math.PI / 3) * j - Math.PI / 2;
+                        const x = centerX + Math.cos(angle) * size * 0.5;
+                        const y = centerY + Math.sin(angle) * size * 0.5 - 3;
+                        if (j === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+                } else if (item.name === 'HAI') {
+                    // HAI: 로고 스타일 - "HAI" 텍스트 + 박스 프레임 + 별
+                    const boxW = 55, boxH = 40;
+                    
+                    // 진한 청록색 그라디언트
+                    const grad = ctx.createLinearGradient(centerX - boxW/2, centerY, centerX + boxW/2, centerY);
+                    grad.addColorStop(0, '#1e88a8');
+                    grad.addColorStop(0.5, '#2aa5c8');
+                    grad.addColorStop(1, '#36c2e8');
+                    
+                    // 배경 박스
+                    ctx.fillStyle = 'rgba(30, 136, 168, 0.15)';
+                    roundRectPath(ctx, centerX - boxW/2, centerY - boxH/2, boxW, boxH, 10);
+                    ctx.fill();
+                    
+                    // 박스 프레임
+                    ctx.strokeStyle = grad;
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                    
+                    // "H" 텍스트
+                    ctx.fillStyle = '#1e88a8';
+                    ctx.font = 'bold 20px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('H', centerX - 12, centerY);
+                    
+                    // "AI" 텍스트 박스
+                    const aiBoxSize = 18;
+                    ctx.strokeStyle = '#2aa5c8';
+                    ctx.lineWidth = 2;
+                    roundRectPath(ctx, centerX + 2, centerY - aiBoxSize/2 + 1, aiBoxSize, aiBoxSize, 4);
+                    ctx.stroke();
+                    
+                    // "AI" 텍스트
+                    ctx.fillStyle = '#2aa5c8';
+                    ctx.font = 'bold 11px Arial';
+                    ctx.fillText('AI', centerX + 11, centerY + 1);
+                    
+                    // 별 아이콘 (오른쪽 상단)
+                    ctx.fillStyle = '#4d96ff';
+                    ctx.font = 'bold 16px Arial';
+                    ctx.fillText('✦', centerX + boxW/2 - 8, centerY - boxH/2 + 8);
+                }
 
                 ctx.shadowBlur = 0;
                 ctx.fillStyle = '#ffffff';
                 ctx.font = 'bold 15px Arial';
                 ctx.textAlign = 'center';
-                ctx.fillText('💎 ' + item.name, item.x + item.width / 2, hoverY + 25);
+                ctx.textBaseline = 'bottom';
+                ctx.fillText('💎 ' + item.name, centerX, hoverY + item.height + 5);
 
                 ctx.fillStyle = '#ffffff';
                 ctx.globalAlpha = 0.6 + pulse * 0.4;
