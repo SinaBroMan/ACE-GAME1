@@ -1539,6 +1539,12 @@
             ctx.save();
             ctx.translate(cx, player.y + 30 + hoverOffset);
 
+            // 무적 모드일 때 부드러운 기울기 추가 (비행 느낌)
+            if (player.isInvincible) {
+                const tilt = Math.sin(frameCount * 0.025) * 0.05; // 매우 미묘한 기울기
+                ctx.rotate(tilt);
+            }
+
             if (player.graceTimer > 0) {
                 ctx.globalAlpha = (Math.floor(time / 100) % 2 === 0) ? 0.4 : 0.8;
             }
@@ -1875,14 +1881,23 @@
 
             if (player.isInvincible) {
                 player.invincibleTimer--;
-                // 부드러운 sin 파동으로 위아래 움직임 (자연스러운 비행 효과)
-                const baseY = canvas.height - 220;
-                const waveAmplitude = 25; // 파동 진폭
-                const waveSpeed = 0.03; // 파동 속도 (느릴수록 부드러움)
-                const targetY = baseY + Math.sin(frameCount * waveSpeed) * waveAmplitude;
                 
-                // 더 부드러운 easing (0.08 → 0.15)
-                player.y += (targetY - player.y) * 0.15;
+                // 부드러운 sin/cos 파동으로 8자 비행 경로 (매우 자연스러운 효과)
+                const baseY = canvas.height - 220;
+                const baseX = 100;
+                
+                // 위아래 파동 (느리고 부드럽게)
+                const verticalWave = Math.sin(frameCount * 0.025) * 20;
+                
+                // 좌우 파동 (더 느리고 미묘하게)
+                const horizontalWave = Math.cos(frameCount * 0.018) * 15;
+                
+                const targetY = baseY + verticalWave;
+                const targetX = baseX + horizontalWave;
+                
+                // 매우 부드러운 easing으로 자연스럽게 이동
+                player.y += (targetY - player.y) * 0.12;
+                player.x += (targetX - player.x) * 0.08;
                 player.vy = 0;
                 player.jumps = 0;
 
