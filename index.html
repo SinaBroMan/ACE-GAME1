@@ -158,6 +158,14 @@
                 min-height: 100vh;
                 inset: auto;
             }
+
+            /* 모바일에서 hidden 화면은 레이아웃 공간을 차지하지 않도록 */
+            .screen:not(#game-screen).hidden {
+                height: 0;
+                min-height: 0;
+                overflow: hidden;
+                padding: 0;
+            }
         }
 
         .screen-shell {
@@ -2684,6 +2692,7 @@
         function startGame() {
             hideAllScreens();
             document.getElementById('game-screen').classList.remove('hidden');
+            window.scrollTo(0, 0);
             // 게임 플레이 중 스크롤 비활성화
             document.body.classList.add('game-active');
             // 터치 스크롤 완전 차단
@@ -2715,12 +2724,14 @@
                 const guideBtn = document.getElementById('result-guide-video-btn');
                 if (guideBtn) guideBtn.style.display = isSuccess ? '' : 'none';
                 document.getElementById('result-screen').classList.remove('hidden');
+                window.scrollTo(0, 0);
             }, 500);
         }
 
         function showBooth() {
             hideAllScreens();
             document.getElementById('booth-screen').classList.remove('hidden');
+            window.scrollTo(0, 0);
         }
 
         function showCanvasGuide() {
