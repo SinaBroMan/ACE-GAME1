@@ -211,6 +211,12 @@
         .lead-line,
         .booth-line {
             display: block;
+            margin-bottom: 8px;
+        }
+        
+        .lead-line:last-child,
+        .booth-line:last-child {
+            margin-bottom: 0;
         }
 
         .intro-grid {
@@ -223,7 +229,7 @@
         .intro-left {
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
             min-width: 0;
         }
 
@@ -586,10 +592,10 @@
         }
 
         .booth-shell {
-            width: min(1180px, 100%);
+            width: min(1400px, 100%);
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 32px;
             max-height: 100%;
             overflow: hidden;
         }
@@ -605,14 +611,14 @@
 
         .booth-head .kicker {
             margin-top: -4px;
-            margin-bottom: 6px;
+            margin-bottom: 12px;
         }
 
         .booth-title {
             font-size: clamp(1.5rem, 3.2vw, 2.2rem);
             line-height: 1.05;
             letter-spacing: -0.04em;
-            margin-bottom: 6px;
+            margin-bottom: 14px;
         }
 
         .booth-desc {
@@ -621,6 +627,7 @@
             line-height: 1.5;
             font-size: 0.9rem;
             word-break: keep-all;
+            margin-bottom: 16px;
         }
 
         .booth-notice {
