@@ -1046,6 +1046,94 @@
                 font-size: 0.84rem;
             }
         }
+
+        /* 모바일 가로모드 최적화 */
+        @media (max-width: 920px) and (orientation: landscape) {
+            #game-screen .screen-shell {
+                max-height: 100vh;
+                height: 100vh;
+                border-radius: 0;
+                border: none;
+            }
+
+            #game-ui {
+                top: 8px;
+                width: calc(100% - 16px);
+                opacity: 0.92;
+            }
+
+            .hud-top {
+                gap: 6px;
+                margin-bottom: 6px;
+                flex-wrap: nowrap;
+            }
+
+            .hud-chip {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+                gap: 6px;
+                background: rgba(255,255,255,0.04);
+            }
+
+            .hud-chip svg {
+                width: 14px;
+                height: 14px;
+            }
+
+            .gauge-shell {
+                height: 32px;
+                background: rgba(255,255,255,0.06);
+            }
+
+            .gauge-text {
+                font-size: 0.8rem;
+            }
+
+            .game-hint {
+                display: none;
+            }
+
+            #game-screen {
+                padding: 0;
+            }
+
+            .screen {
+                padding: 0;
+                min-height: 100vh;
+            }
+        }
+
+        /* 작은 화면 가로모드 더 극단적 최적화 */
+        @media (max-height: 450px) and (orientation: landscape) {
+            #game-ui {
+                top: 4px;
+                width: calc(100% - 12px);
+            }
+
+            .hud-top {
+                gap: 4px;
+                margin-bottom: 4px;
+            }
+
+            .hud-chip {
+                padding: 4px 8px;
+                font-size: 0.7rem;
+                gap: 4px;
+            }
+
+            .hud-chip svg {
+                width: 12px;
+                height: 12px;
+            }
+
+            .gauge-shell {
+                height: 26px;
+            }
+
+            .gauge-text {
+                font-size: 0.7rem;
+            }
+        }
     </style>
 </head>
 <body>
