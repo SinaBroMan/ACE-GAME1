@@ -55,6 +55,14 @@
             color: var(--white);
         }
 
+        /* 게임 플레이 중에는 스크롤 비활성화 */
+        body.game-active {
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
+
         body::before,
         body::after {
             content: "";
@@ -1259,6 +1267,10 @@
             document.getElementById('game-screen').classList.add('hidden');
             document.getElementById('result-screen').classList.add('hidden');
             document.getElementById('booth-screen').classList.add('hidden');
+            // 게임 화면이 아닐 때는 스크롤 활성화
+            document.body.classList.remove('game-active');
+            // 터치 스크롤 차단 해제
+            document.removeEventListener('touchmove', preventScroll, { passive: false });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -2491,9 +2503,18 @@
             document.getElementById('score-bar').style.width = (currentScore / 500 * 100) + '%';
         }
 
+        // 게임 중 스크롤 방지 함수
+        function preventScroll(e) {
+            e.preventDefault();
+        }
+
         function startGame() {
             hideAllScreens();
             document.getElementById('game-screen').classList.remove('hidden');
+            // 게임 플레이 중 스크롤 비활성화
+            document.body.classList.add('game-active');
+            // 터치 스크롤 완전 차단
+            document.addEventListener('touchmove', preventScroll, { passive: false });
             initGame();
         }
 
